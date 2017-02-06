@@ -38,13 +38,6 @@ TEST_CASE("util::file_exists() -- nonexistant", "[util]") {
 	REQUIRE_FALSE(file_exists((temp + "nonexistant_file").c_str()));
 }
 
-TEST_CASE("util::file_exists() -- nonfile", "[util]") {
-	const auto temp = temp_dir() + "/gen-epub-book.cpp/util/file_exists/actually_a_dir"s;
-	make_directory_recursive(temp.c_str());
-
-	REQUIRE_FALSE(file_exists(temp.c_str()));
-}
-
 TEST_CASE("util::file_exists() -- existant file", "[util]") {
 	const auto temp = temp_dir() + "/gen-epub-book.cpp/util/file_exists/"s;
 	make_directory_recursive(temp.c_str());
