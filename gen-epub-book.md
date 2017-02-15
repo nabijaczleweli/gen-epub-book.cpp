@@ -15,13 +15,9 @@ Generate an ePub book from a simple plaintext descriptor.
 
     File to parse, must exist, must comply with the DESCRIPTOR FORMAT.
 
-    Special case: '-' to read from stdin.
-
   OUT_FILE
 
     File to write the book to, parent directory needn't exist.
-
-    Special case: '-' to write to stdout.
 
 ## DESCRIPTOR FORMAT
 

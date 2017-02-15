@@ -20,17 +20,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include "options/options.hpp"
-#include <iostream>
+#pragma once
 
 
-int main(int argc, char ** argv) {
-	const auto opts_r = options::parse(argc, argv);
-	if(opts_r.second.first) {
-		std::cerr << opts_r.second.second << '\n';
-		return opts_r.second.first;
-	}
-	const auto opts = std::move(opts_r.first);
+#include <string>
+#include <utility>
 
-	std::cout << opts.in_file << ' ' << opts.out_file << '\n';
-}
+
+struct options {
+	std::string in_file;
+	std::string out_file;
+
+
+	static std::pair<options, std::pair<int, std::string>> parse(int argc, char ** argv);
+};

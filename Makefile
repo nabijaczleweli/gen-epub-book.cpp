@@ -23,9 +23,9 @@
 include configMakefile
 
 
-VERAR := $(foreach l,GEN_EPUB_BOOK_CPP,-D$(l)_VERSION='$($(l)_VERSION)')
+VERAR := $(foreach l,GEN_EPUB_BOOK_CPP TCLAP,-D$(l)_VERSION='$($(l)_VERSION)')
+INCAR := $(foreach l,$(foreach l,TCLAP,$(l)/include),-isystemext/$(l))
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
-HEADERS := $(sort $(wildcard src/*.hpp src/**/*.hpp src/**/**/*.hpp src/**/**/**/*.hpp))
 
 .PHONY : all clean exe
 
@@ -44,4 +44,4 @@ $(OUTDIR)gen-epub-book$(EXE) : $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,$(OBJ),$
 
 $(OBJDIR)%$(OBJ) : $(SRCDIR)%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXAR) $(VERAR) -c -o$@ $^
+	$(CXX) $(CXXAR) $(INCAR) $(VERAR) -c -o$@ $^
