@@ -21,28 +21,38 @@
 
 
 #include "book.hpp"
-#include "options/options.hpp"
-#include <fstream>
-#include <iostream>
+#include <cstring>
 
 
-int main(int argc, char ** argv) {
-	const auto opts_r = options::parse(argc, argv);
-	if(std::get<1>(opts_r)) {
-		std::cerr << std::get<2>(opts_r) << '\n';
-		return std::get<1>(opts_r);
+book book::from(const char * relroot, std::istream & descriptor) {
+	detail::book_parser p{};
+	p.relroot = relroot;
+	for(std::string line; std::getline(descriptor, line);)
+		p.take_line(line);
+
+	book b{};
+	p.construct(b);
+	return b;
+}
+
+book book::from(const char * relroot, const std::string & descriptor) {
+	return book::from(relroot, descriptor.c_str());
+}
+
+book book::from(const char * relroot, const char * descriptor) {
+	detail::book_parser p{};
+	p.relroot = relroot;
+	for(const char *line_s = descriptor, *line_e = nullptr; (line_e = std::strchr(line_s, '\n'));) {
+		p.take_line(line_s, line_e - line_s);
+		line_s = line_e + 1;
 	}
-	const auto opts = std::move(std::get<0>(opts_r));
 
-	std::ifstream in(opts.in_file);
-	try {
-		const auto b = book::from(opts.relative_root.c_str(), in);
-		std::ofstream(opts.out_file) << b;
-	} catch(const char * s) {
-		std::cerr << s << '\n';
-		return 2;
-	} catch(const std::string & s) {
-		std::cerr << s << '\n';
-		return 2;
-	}
+	book b{};
+	p.construct(b);
+	return b;
+}
+
+std::ostream & operator<<(std::ostream & out, const book & b) {
+	out << '"' << b.name << "\" by " << b.author << '\n';
+	return out;
 }

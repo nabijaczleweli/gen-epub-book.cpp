@@ -22,7 +22,6 @@
 
 #include "options.hpp"
 #include "existing_file_constraint.hpp"
-#include <string>
 #include <tclap/CmdLine.h>
 #include <tclap/ValueArg.h>
 
@@ -30,7 +29,7 @@
 using namespace std::literals;
 
 
-std::pair<options, std::pair<int, std::string>> options::parse(int argc, char ** argv) {
+std::tuple<options, int, std::string> options::parse(int argc, char ** argv) {
 	options ret;
 
 	try {
@@ -43,17 +42,24 @@ std::pair<options, std::pair<int, std::string>> options::parse(int argc, char **
 		command_line.parse(argc, argv);
 
 		if(in_file.getValue().empty())
-			return std::make_pair(ret, std::make_pair(1, "Input file can't be empty"s));
-		else
+			return std::make_tuple(ret, 1, "Input file can't be empty"s);
+		else {
 			ret.in_file = in_file;
 
+			const auto slash_idx = ret.in_file.find_last_of("/\\");
+			if(slash_idx == std::string::npos)
+				ret.relative_root = "./";
+			else
+				ret.relative_root = ret.in_file.substr(0, slash_idx + 1);
+		}
+
 		if(out_file.getValue().empty())
-			return std::make_pair(ret, std::make_pair(1, "Output file can't be empty"s));
+			return std::make_tuple(ret, 1, "Output file can't be empty"s);
 		else
 			ret.out_file = out_file;
 	} catch(const TCLAP::ArgException & e) {
-		return std::make_pair(ret, std::make_pair(1, std::string(argv[0]) + ": error: parsing arguments failed (" + e.error() + ") for argument " + e.argId()));
+		return std::make_tuple(ret, 1, std::string(argv[0]) + ": error: parsing arguments failed (" + e.error() + ") for argument " + e.argId());
 	}
 
-	return std::make_pair(ret, std::make_pair(0, ""s));
+	return std::make_tuple(ret, 0, ""s);
 }

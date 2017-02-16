@@ -24,13 +24,14 @@
 
 
 #include <string>
-#include <utility>
+#include <tuple>
 
 
 struct options {
 	std::string in_file;
 	std::string out_file;
+	std::string relative_root;
 
 
-	static std::pair<options, std::pair<int, std::string>> parse(int argc, char ** argv);
+	static std::tuple<options, int, std::string> parse(int argc, char ** argv);
 };

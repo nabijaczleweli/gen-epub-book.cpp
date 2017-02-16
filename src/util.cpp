@@ -22,6 +22,9 @@
 
 
 #include "util.hpp"
+#include <algorithm>
+#include <cctype>
+#include <cstdint>
 #include <cstdio>
 
 
@@ -30,4 +33,46 @@ bool file_exists(const char * path) {
 	if(f)
 		std::fclose(f);
 	return f;
+}
+
+std::string path_id(std::string p) {
+	auto path   = path_fname(std::move(p));
+	auto dot_id = path.find('.');
+	if(dot_id != std::string::npos)
+		path.erase(dot_id);
+	return path;
+}
+
+std::string path_fname(std::string p) {
+	for(std::size_t i; (i = p.find("\\")) != std::string::npos;)
+		p.replace(i, 1, "/");
+	for(std::size_t i; (i = p.find("../")) != std::string::npos;)
+		p.replace(i, 3, "");
+	for(std::size_t i; (i = p.find("./")) != std::string::npos;)
+		p.replace(i, 2, "");
+	for(std::size_t i; (i = p.find("/")) != std::string::npos;)
+		p.replace(i, 1, "-");
+	return p;
+}
+
+std::string url_id(const std::string & u) {
+	return u.substr(u.find_last_of('/') + 1, u.find_last_of('.'));
+}
+
+std::string url_fname(const std::string & u) {
+	return u.substr(u.find_last_of('/') + 1);
+}
+
+std::string & ltrim(std::string & s) {
+	s.erase(s.begin(), std::find_if_not(s.begin(), s.end(), [](char c) { return std::isspace(c); }));
+	return s;
+}
+
+std::string & rtrim(std::string & s) {
+	s.erase(std::find_if_not(s.rbegin(), s.rend(), [](char c) { return std::isspace(c); }).base(), s.end());
+	return s;
+}
+
+std::string & trim(std::string & s) {
+	return ltrim(rtrim(s));
 }

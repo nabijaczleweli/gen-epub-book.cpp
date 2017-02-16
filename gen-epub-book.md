@@ -17,7 +17,7 @@ Generate an ePub book from a simple plaintext descriptor.
 
   OUT_FILE
 
-    File to write the book to, parent directory needn't exist.
+    File to write the book to, parent directory must exist.
 
 ## DESCRIPTOR FORMAT
 
