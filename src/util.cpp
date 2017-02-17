@@ -26,6 +26,9 @@
 #include <cctype>
 #include <cstdint>
 #include <cstdio>
+#include <fstream>
+#include <regex>
+#include <sstream>
 
 
 bool file_exists(const char * path) {
@@ -36,10 +39,9 @@ bool file_exists(const char * path) {
 }
 
 std::string path_id(std::string p) {
-	auto path   = path_fname(std::move(p));
-	auto dot_id = path.find('.');
-	if(dot_id != std::string::npos)
-		path.erase(dot_id);
+	auto path = path_fname(std::move(p));
+	for(std::size_t i; (i = path.find(".")) != std::string::npos;)
+		path.replace(i, 1, "-");
 	return path;
 }
 
@@ -56,11 +58,25 @@ std::string path_fname(std::string p) {
 }
 
 std::string url_id(const std::string & u) {
-	return u.substr(u.find_last_of('/') + 1, u.find_last_of('.'));
+	const auto post_slash_idx = u.find_last_of('/') + 1;
+	return u.substr(post_slash_idx, u.find_last_of('.') - post_slash_idx);
 }
 
 std::string url_fname(const std::string & u) {
 	return u.substr(u.find_last_of('/') + 1);
+}
+
+std::experimental::optional<std::string> get_ebook_title(const std::string & in) {
+	static const std::regex title_rgx("<!-- ePub title: \"([^\"]+)\" -->", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+
+	std::stringstream whole;
+	whole << std::ifstream(in).rdbuf();
+
+	std::cmatch title;
+	if(std::regex_search(whole.str().c_str(), title, title_rgx))
+		return {title[1]};
+	else
+		return {};
 }
 
 std::string & ltrim(std::string & s) {

@@ -21,7 +21,25 @@
 
 
 #include "book.hpp"
+#include "data.hpp"
+#include "util.hpp"
+#include <algorithm>
+#include <cpr/cpr.h>
 #include <cstring>
+#include <fstream>
+#include <iomanip>
+#include <memory>
+#include <minizip/zip.h>
+#include <set>
+#include <sstream>
+
+
+struct zipFile_deleter {
+	template <class T>
+	void operator()(T * f) {
+		zipClose(f, "ePub book");
+	}
+};
 
 
 book book::from(const char * relroot, std::istream & descriptor) {
@@ -52,7 +70,213 @@ book book::from(const char * relroot, const char * descriptor) {
 	return b;
 }
 
-std::ostream & operator<<(std::ostream & out, const book & b) {
-	out << '"' << b.name << "\" by " << b.author << '\n';
-	return out;
+void book::write_to(const char * path) {
+	std::unique_ptr<void, zipFile_deleter> epub(zipOpen(path, APPEND_STATUS_CREATE));
+
+	zipOpenNewFileInZip(epub.get(), "META-INF/container.xml", nullptr, nullptr, 0, nullptr, 0, "container file", Z_DEFLATED, Z_BEST_COMPRESSION);
+	zipWriteInFileInZip(epub.get(), assets_container_xml, std::strlen(assets_container_xml));
+	zipCloseFileInZip(epub.get());
+
+	zipOpenNewFileInZip(epub.get(), "mimetype", nullptr, nullptr, 0, nullptr, 0, "mimetype", Z_DEFLATED, Z_BEST_COMPRESSION);
+	zipWriteInFileInZip(epub.get(), assets_mimetype, std::strlen(assets_mimetype));
+	zipCloseFileInZip(epub.get());
+
+	write_content_table(epub.get());
+	write_table_of_contents(epub.get());
+
+	if(cover)
+		write_element(epub.get(), *cover);
+	std::for_each(content.begin(), content.end(), [&](auto && ctnt) { this->write_element(epub.get(), ctnt); });
+	std::for_each(non_content.begin(), non_content.end(), [&](auto && nctnt) { this->write_element(epub.get(), nctnt); });
+}
+
+void book::write_content_table(void * epub) {
+	zipOpenNewFileInZip(epub, "content.opf", nullptr, nullptr, 0, nullptr, 0, "content table", Z_DEFLATED, Z_BEST_COMPRESSION);
+	zipWriteInFileInZip(epub, assets_content_opf_header, std::strlen(assets_content_opf_header));
+
+	zipWriteInFileInZip(epub, "    <dc:title>", std::strlen("    <dc:title>"));
+	zipWriteInFileInZip(epub, name.c_str(), name.size());
+	zipWriteInFileInZip(epub, "</dc:title>\n", std::strlen("</dc:title>\n"));
+
+	zipWriteInFileInZip(epub, "    <dc:creator opf:role=\"aut\">", std::strlen("    <dc:creator opf:role=\"aut\">"));
+	zipWriteInFileInZip(epub, author.c_str(), author.size());
+	zipWriteInFileInZip(epub, "</dc:creator>\n", std::strlen("</dc:creator>\n"));
+
+	auto id_s = id.string();
+	zipWriteInFileInZip(epub, "    <dc:identifier id=\"uuid\" opf:scheme=\"uuid\">", std::strlen("    <dc:identifier id=\"uuid\" opf:scheme=\"uuid\">"));
+	zipWriteInFileInZip(epub, id_s, std::strlen(id_s));
+	zipWriteInFileInZip(epub, "</dc:identifier>\n", std::strlen("</dc:identifier>\n"));
+	std::free(id_s);
+
+	std::ostringstream date_s;
+	date_s << std::put_time(&date.first, "%Y-%m-%dT%H:%M:%S");
+	zipWriteInFileInZip(epub, "    <dc:date>", std::strlen("    <dc:date>"));
+	zipWriteInFileInZip(epub, date_s.str().c_str(), date_s.str().size());
+	zipWriteInFileInZip(epub, date.second.c_str(), date.second.size());
+	zipWriteInFileInZip(epub, "</dc:date>\n", std::strlen("</dc:date>\n"));
+
+	if(cover) {
+		zipWriteInFileInZip(epub, "    <meta name=\"cover\" content=\"", std::strlen("    <meta name=\"cover\" content=\""));
+		zipWriteInFileInZip(epub, cover->id.c_str(), cover->id.size());
+		zipWriteInFileInZip(epub, "\" />\n", std::strlen("\" />\n"));
+	}
+
+	zipWriteInFileInZip(epub, "  </metadata>\n", std::strlen("  </metadata>\n"));
+	zipWriteInFileInZip(epub, "  <manifest>\n", std::strlen("  <manifest>\n"));
+	zipWriteInFileInZip(epub, assets_content_opf_manifest_toc_line, std::strlen(assets_content_opf_manifest_toc_line));
+
+	std::set<std::string> specified_ids;
+	auto spec_item = [&, specified_ids = std::set<std::string>{} ](auto && elem) mutable {
+		if(specified_ids.find(elem.id) != specified_ids.end())
+			return;
+		specified_ids.emplace(elem.id);
+
+		const auto dot_id = elem.filename.find_last_of('.');
+		if(dot_id == std::string::npos || dot_id == elem.filename.size() - 1)
+			throw "File \"" + elem.filename + "\" doesn't have an extension.";
+		const auto mime_itr = mime_types.find(elem.filename.c_str() + dot_id + 1);
+		if(mime_itr == mime_types.end())
+			throw "No MIME type for extension " + std::string(elem.filename.c_str() + dot_id + 1) + ".";
+
+		zipWriteInFileInZip(epub, "    <item href=\"", std::strlen("    <item href=\""));
+		zipWriteInFileInZip(epub, elem.filename.c_str(), elem.filename.size());
+		zipWriteInFileInZip(epub, "\" id=\"", std::strlen("\" id=\""));
+		zipWriteInFileInZip(epub, elem.id.c_str(), elem.id.size());
+		zipWriteInFileInZip(epub, "\" media-type=\"", std::strlen("\" media-type=\""));
+		zipWriteInFileInZip(epub, mime_itr->second, std::strlen(mime_itr->second));
+		zipWriteInFileInZip(epub, "\" />\n", std::strlen("\" />\n"));
+	};
+	if(cover)
+		spec_item(*cover);
+	std::for_each(content.begin(), content.end(), spec_item);
+	std::for_each(non_content.begin(), non_content.end(), spec_item);
+
+	zipWriteInFileInZip(epub, "  </manifest>\n", std::strlen("  </manifest>\n"));
+	zipWriteInFileInZip(epub, "  <spine toc=\"toc\">\n", std::strlen("  <spine toc=\"toc\">\n"));
+
+	for(auto && ctnt : content) {
+		zipWriteInFileInZip(epub, "    <itemref idref=\"", std::strlen("    <itemref idref=\""));
+		zipWriteInFileInZip(epub, ctnt.id.c_str(), ctnt.id.size());
+		zipWriteInFileInZip(epub, "\" />\n", std::strlen("\" />\n"));
+	}
+
+	zipWriteInFileInZip(epub, "  </spine>\n", std::strlen("  </spine>\n"));
+	zipWriteInFileInZip(epub, "  <guide>\n", std::strlen("  <guide>\n"));
+
+	if(cover) {
+		zipWriteInFileInZip(epub, "    <reference xmlns=\"http://www.idpf.org/2007/opf\" href=\"",
+		                    std::strlen("    <reference xmlns=\"http://www.idpf.org/2007/opf\" href=\""));
+		zipWriteInFileInZip(epub, cover->filename.c_str(), cover->filename.size());
+		zipWriteInFileInZip(epub, "\" title=\"", std::strlen("\" title=\""));
+		zipWriteInFileInZip(epub, cover->id.c_str(), cover->id.size());
+		zipWriteInFileInZip(epub, "\" type=\"cover\" />\n", std::strlen("\" type=\"cover\" />\n"));
+	}
+
+	zipWriteInFileInZip(epub, assets_content_opf_guide_toc_line, std::strlen(assets_content_opf_guide_toc_line));
+
+	zipWriteInFileInZip(epub, "  </guide>\n", std::strlen("  </guide>\n"));
+	zipWriteInFileInZip(epub, "</package>\n", std::strlen("</package>\n"));
+
+	zipCloseFileInZip(epub);
+}
+
+void book::write_table_of_contents(void * epub) {
+	zipOpenNewFileInZip(epub, "toc.ncx", nullptr, nullptr, 0, nullptr, 0, "table of contents", Z_DEFLATED, Z_BEST_COMPRESSION);
+	zipWriteInFileInZip(epub, "<?xml version='1.0' encoding='utf-8'?>\n", std::strlen("<?xml version='1.0' encoding='utf-8'?>\n"));
+
+	zipWriteInFileInZip(epub, "<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\"",
+	                    std::strlen("<ncx xmlns=\"http://www.daisy.org/z3986/2005/ncx/\" version=\"2005-1\" xml:lang=\""));
+	zipWriteInFileInZip(epub, language.c_str(), language.size());
+	zipWriteInFileInZip(epub, "\">\n", std::strlen("\">\n"));
+
+	zipWriteInFileInZip(epub, "  <head>\n", std::strlen("  <head>\n"));
+
+	auto id_s = id.string();
+	zipWriteInFileInZip(epub, "    <meta content=\"", std::strlen("    <meta content=\""));
+	zipWriteInFileInZip(epub, id_s, std::strlen(id_s));
+	zipWriteInFileInZip(epub, "\" name=\"dtb:uid\" />\n", std::strlen("\" name=\"dtb:uid\" />\n"));
+	std::free(id_s);
+
+	zipWriteInFileInZip(epub, "    <meta content=\"2\" name=\"dtb:depth\" />\n", std::strlen("    <meta content=\"2\" name=\"dtb:depth\" />\n"));
+	zipWriteInFileInZip(epub, "  </head>\n", std::strlen("  </head>\n"));
+	zipWriteInFileInZip(epub, "  <docTitle>\n", std::strlen("  <docTitle>\n"));
+
+	zipWriteInFileInZip(epub, "    <text>", std::strlen("    <text>"));
+	zipWriteInFileInZip(epub, name.c_str(), name.size());
+	zipWriteInFileInZip(epub, "</text>\n", std::strlen("</text>\n"));
+
+	zipWriteInFileInZip(epub, "  </docTitle>\n", std::strlen("  </docTitle>\n"));
+	zipWriteInFileInZip(epub, "  <navMap>\n", std::strlen("  <navMap>\n"));
+
+	auto nav_map_id = 0u;
+	for(auto && ctnt : content) {
+		if(ctnt.tp != content_type::path)
+			continue;
+
+		const auto title = get_ebook_title(ctnt.data);
+		if(!title)
+			continue;
+
+		++nav_map_id;
+		uuid ctnt_id;
+		ctnt_id.make(UUID_MAKE_V4);
+
+		auto ctnt_id_s = id.string();
+		zipWriteInFileInZip(epub, "    <navPoint id=\"", std::strlen("    <navPoint id=\""));
+		zipWriteInFileInZip(epub, ctnt_id_s, std::strlen(ctnt_id_s));
+		zipWriteInFileInZip(epub, "\" playOrder=\"", std::strlen("\" playOrder=\""));
+		zipWriteInFileInZip(epub, std::to_string(nav_map_id).c_str(), std::to_string(nav_map_id).size());
+		zipWriteInFileInZip(epub, "\">\n", std::strlen("\">\n"));
+		std::free(ctnt_id_s);
+
+		zipWriteInFileInZip(epub, "      <navLabel>\n", std::strlen("      <navLabel>\n"));
+
+		zipWriteInFileInZip(epub, "        <text>", std::strlen("        <text>"));
+		zipWriteInFileInZip(epub, title->c_str(), title->size());
+		zipWriteInFileInZip(epub, "</text>\n", std::strlen("</text>\n"));
+
+		zipWriteInFileInZip(epub, "      </navLabel>\n", std::strlen("      </navLabel>\n"));
+
+		zipWriteInFileInZip(epub, "      <content src=\"", std::strlen("      <content src=\""));
+		zipWriteInFileInZip(epub, ctnt.filename.c_str(), ctnt.filename.size());
+		zipWriteInFileInZip(epub, "\" />\n", std::strlen("\" />\n"));
+
+		zipWriteInFileInZip(epub, "    </navPoint>\n", std::strlen("    </navPoint>\n"));
+	}
+
+	zipWriteInFileInZip(epub, "  </navMap>\n", std::strlen("  </navMap>\n"));
+	zipWriteInFileInZip(epub, "</ncx>\n", std::strlen("</ncx>\n"));
+
+	zipCloseFileInZip(epub);
+}
+
+void book::write_element(void * epub, const content_element & elem) {
+	zipOpenNewFileInZip(epub, elem.filename.c_str(), nullptr, nullptr, 0, nullptr, 0, elem.id.c_str(), Z_DEFLATED, Z_BEST_COMPRESSION);
+
+	switch(elem.tp) {
+		case content_type::path: {
+			char buf[1024];
+			std::ifstream data(elem.data, std::ios::binary);
+
+			for(;;) {
+				data.read(buf, sizeof(buf));
+				const auto read = data.gcount();
+
+				zipWriteInFileInZip(epub, buf, read);
+				if(read != sizeof(buf))
+					break;
+			}
+		} break;
+		case content_type::string:
+			zipWriteInFileInZip(epub, assets_string_data_html_head, std::strlen(assets_string_data_html_head));
+			zipWriteInFileInZip(epub, elem.data.c_str(), elem.data.size());
+			zipWriteInFileInZip(epub, assets_string_data_html_tail, std::strlen(assets_string_data_html_tail));
+			break;
+		case content_type::network: {
+			const auto data = cpr::Get(cpr::Url(elem.data)).text;
+			zipWriteInFileInZip(epub, data.c_str(), data.size());
+		} break;
+	}
+
+	zipCloseFileInZip(epub);
 }

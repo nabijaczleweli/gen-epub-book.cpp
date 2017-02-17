@@ -29,6 +29,7 @@
 #include <ostream>
 #include <string>
 #include <utility>
+#include <uuid++.hh>
 #include <vector>
 
 
@@ -49,8 +50,13 @@ class book {
 private:
 	friend struct detail::book_parser;
 
+	uuid id;
 	std::vector<content_element> content;
 	std::vector<content_element> non_content;
+
+	void write_content_table(void * epub);
+	void write_table_of_contents(void * epub);
+	void write_element(void * epub, const content_element & elem);
 
 public:
 	std::string name;
@@ -65,9 +71,9 @@ public:
 	static book from(const char * relroot, std::istream & descriptor);
 	static book from(const char * relroot, const std::string & descriptor);
 	static book from(const char * relroot, const char * descriptor);
-};
 
-std::ostream & operator<<(std::ostream & out, const book & b);
+	void write_to(const char * path);
+};
 
 namespace detail {
 	struct book_parser {

@@ -25,6 +25,7 @@
 
 
 #include <string>
+#include <optional.hpp>
 
 
 bool file_exists(const char * path);
@@ -32,6 +33,7 @@ std::string path_id(std::string p);
 std::string path_fname(std::string p);
 std::string url_id(const std::string & u);
 std::string url_fname(const std::string & u);
+std::experimental::optional<std::string> get_ebook_title(const std::string & in);
 
 std::string & ltrim(std::string & s);
 std::string & rtrim(std::string & s);

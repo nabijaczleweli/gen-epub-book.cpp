@@ -23,9 +23,11 @@
 ifeq "$(OS)" "Windows_NT"
 	EXE := .exe
 	PIC :=
+	ECHO := /usr/bin/echo
 else
 	EXE := .out
 	PIC := -fPIC
+	ECHO := echo
 endif
 
 ifneq "$(ADDITIONAL_INCLUDE_DIR)" ""
@@ -41,11 +43,14 @@ else
 endif
 
 GEN_EPUB_BOOK_CPP_VERSION := "$(patsubst v%,%,$(shell git describe --tags --abbrev=0))"
+MINIZIP_VERSION := "$(shell head -1 ext/minizip/ChangeLogUnzip | sed -e "s/Change in //" -e "s/ \(.*\)//")"
 TCLAP_VERSION := "$(shell cat ext/TCLAP/configure.in | grep AM_INIT_AUTOMAKE | sed "s/.*(tclap,\(.*\))/\1/")"
+UUID_VERSION := "$(shell grep Version ext/uuid/README | head -1 | sed -e "s/  Version //" -e "s/ \(.*\)//")"
 
 OBJ := .o
-ARCH := .a
 AR := ar
+CMAKE := cmake
+NINJA := ninja
 CXXAR := -O3 -fomit-frame-pointer -std=c++14 -pedantic -Wall -Wextra -pipe $(INCCXXAR) $(PIC)
 CCAR := -O3 -fomit-frame-pointer -std=c11 -pipe $(PIC)
 

@@ -20,28 +20,19 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include "book.hpp"
-#include "options/options.hpp"
-#include <fstream>
-#include <iostream>
+#pragma once
 
 
-int main(int argc, char ** argv) {
-	const auto opts_r = options::parse(argc, argv);
-	if(std::get<1>(opts_r)) {
-		std::cerr << std::get<2>(opts_r) << '\n';
-		return std::get<1>(opts_r);
-	}
-	const auto opts = std::move(std::get<0>(opts_r));
+#include <map>
+#include <string>
 
-	std::ifstream in(opts.in_file);
-	try {
-		book::from(opts.relative_root.c_str(), in).write_to(opts.out_file.c_str());
-	} catch(const char * s) {
-		std::cerr << s << '\n';
-		return 2;
-	} catch(const std::string & s) {
-		std::cerr << s << '\n';
-		return 2;
-	}
-}
+
+extern const char * const assets_content_opf_manifest_toc_line;
+extern const char * const assets_content_opf_guide_toc_line;
+extern const char * const assets_content_opf_header;
+extern const char * const assets_string_data_html_head;
+extern const char * const assets_string_data_html_tail;
+extern const char * const assets_container_xml;
+extern const char * const assets_mimetype;
+
+extern const std::map<std::string, const char *> mime_types;

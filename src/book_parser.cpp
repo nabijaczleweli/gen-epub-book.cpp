@@ -74,7 +74,7 @@ void detail::book_parser::take_line(const std::string & line) {
 		else {
 			non_content.emplace_back(content_element{path_id(value), path_fname(value), relroot + value, content_type::path});
 			content.emplace_back(content_element{"image-content-" + std::to_string(id), "image-data-" + std::to_string(id) + ".html",
-			                                     "<center><img src=\""s + relroot + path_fname(value) + "\"></img></center>", content_type::string});
+			                                     "<center><img src=\""s + path_fname(value) + "\"></img></center>", content_type::string});
 		}
 	else if(key == "Network-Image-Content") {
 		non_content.emplace_back(content_element{url_id(value), url_fname(value), value, content_type::network});
@@ -126,6 +126,7 @@ void detail::book_parser::take_line(const char * line, std::size_t len) {
 }
 
 void detail::book_parser::construct(book & b) {
+	b.id.make(UUID_MAKE_V4);
 	b.content     = std::move(content);
 	b.non_content = std::move(non_content);
 	b.name        = try_option(std::move(name), "Name");
