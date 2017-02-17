@@ -1,6 +1,16 @@
 language: generic
 sudo: false
-cache: apt
+cache:
+  apt: true
+  directories:
+    - /tmp/tools
+
+env:
+  global:
+    - PATH="$HOME/bin:$PATH"
+    - CMAKE_VERSION_PREFIX=3.7
+    - CMAKE_VERSION_FULL=3.7.2
+    - NINJA_VERSION=1.7.2
 
 matrix:
   include:
@@ -9,6 +19,7 @@ matrix:
         apt:
           packages:
             - g++-5
+            - unzip
           sources: &sources
             - r-packages-precise
             - ubuntu-toolchain-r-test
@@ -19,22 +30,29 @@ matrix:
         apt:
           packages:
             - g++-6
+            - unzip
           sources: *sources
     - env: LANGUAGE=C++ CXX=clang++-3.8 CC=clang-3.8
       addons:
         apt:
           packages:
             - clang-3.8
+            - unzip
           sources: *sources
     - env: LANGUAGE=C++ CXX=clang++-3.9 CC=clang-3.9
       addons:
         apt:
           packages:
             - clang-3.9
+            - unzip
           sources: *sources
     - env: LANGUAGE=Ruby DEPLOY=true DEPLOY_FILE="$TRAVIS_BUILD_DIR/../gen-epub-book.cpp-man-$TRAVIS_TAG.tbz2"
       language: ruby
       rvm: "2.2"
+  allow_failures:
+    # Clang doesn't have std::put_time()
+    - env: LANGUAGE=C++ CXX=clang++-3.8 CC=clang-3.8
+    - env: LANGUAGE=C++ CXX=clang++-3.9 CC=clang-3.9
 
 before_install:
   - if [ "$TRAVIS_SECURE_ENV_VARS" == "true" ]; then
@@ -42,10 +60,23 @@ before_install:
     fi
 
 install:
+  - if [ "$LANGUAGE" == "C++" ]; then mkdir -p /tmp/tools; pushd /tmp/tools; fi
+  - if [ "$LANGUAGE" == "C++" ] && [[ ! -f "cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh" ]]; then
+      curl -SOL "https://cmake.org/files/v$CMAKE_VERSION_PREFIX/cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh";
+      chmod +x "cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh";
+    fi
+  - if [ "$LANGUAGE" == "C++" ]; then ./"cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh" --prefix="$HOME" --exclude-subdir --skip-license; fi
+  -
+  - if [ "$LANGUAGE" == "C++" ] && [[ ! -f "ninja-$NINJA_VERSION.zip" ]]; then
+      curl -SLO "https://github.com/ninja-build/ninja/releases/download/v$NINJA_VERSION/ninja-linux.zip";
+      mv "ninja-linux.zip" "ninja-$NINJA_VERSION.zip";
+    fi
+  - if [ "$LANGUAGE" == "C++" ]; then unzip "ninja-$NINJA_VERSION.zip" -d "$HOME/bin"; popd; fi
+  -
   - if [ "$LANGUAGE" == "Ruby" ]; then gem install ronn; fi
 
 script:
-  - if [ "$LANGUAGE" == "C++" ]; then make -j$(nproc); fi
+  - if [ "$LANGUAGE" == "C++" ]; then make; fi
   -
   - if [ "$LANGUAGE" == "Ruby" ]; then
       mkdir man; pushd man;
