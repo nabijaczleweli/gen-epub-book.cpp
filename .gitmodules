@@ -5,3 +5,7 @@
 	path = ext/cpr
 	url = https://github.com/whoshuu/cpr.git
 	branch = 1.3.0
+[submodule "ext/Catch"]
+	path = ext/Catch
+	url = https://github.com/philsquared/Catch.git
+	branch = v1.7.2
