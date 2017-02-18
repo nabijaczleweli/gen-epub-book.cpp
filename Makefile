@@ -25,27 +25,35 @@ include configMakefile
 
 LDAR := $(PIC) $(foreach l,ext ext/cpr/lib,-L$(OUTDIR)$(l)) $(foreach l,cpr curl minizip z uuid++,-l$(l))
 VERAR := $(foreach l,GEN_EPUB_BOOK_CPP CPR MINIZIP TCLAP UUID,-D$(l)_VERSION='$($(l)_VERSION)')
-INCAR := $(foreach l,$(foreach l,$(foreach l,cpr TCLAP minizip,$(l)/include) Optional,ext/$(l)) $(OUTDIR)ext/uuid/include,-isystem$(l))
+INCAR := $(foreach l,$(foreach l,$(foreach l,Catch cpr TCLAP minizip,$(l)/include) Optional,ext/$(l)) $(OUTDIR)ext/uuid/include,-isystem$(l))
 BOOK_SOURCES := $(sort $(wildcard examples/*.epupp examples/**/*.epupp examples/**/**/*.epupp examples/**/**/**/*.epupp))
+TEST_SOURCES := $(sort $(wildcard tests/*.cpp tests/**/*.cpp tests/**/**/*.cpp tests/**/**/**/*.cpp))
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 ASSETS := $(sort $(wildcard assets/* assets/**/* assets/**/**/* assets/**/**/**/*))
 
-.PHONY : all clean cpr minizip uuid exe examples
+.PHONY : all clean cpr minizip uuid exe tests run-tests examples
 
-all : cpr minizip uuid exe examples
+all : cpr minizip uuid exe tests run-tests examples
 
 clean :
 	rm -rf $(OUTDIR)
 
+run-tests : $(OUTDIR)gen-epub-book-tests$(EXE)
+	$^
+
 exe : $(OUTDIR)gen-epub-book$(EXE)
 examples : $(OUTDIR)gen-epub-book$(EXE) $(patsubst %.epupp,$(OUTDIR)%.epub,$(BOOK_SOURCES)) $(patsubst %.epupp,$(OUTDIR)%.mobi,$(BOOK_SOURCES))
+tests : $(OUTDIR)gen-epub-book-tests$(EXE)
 cpr : $(OUTDIR)ext/cpr/lib/libcpr.a
 minizip : $(OUTDIR)ext/libminizip.a
 uuid : $(OUTDIR)ext/libuuid++.a $(subst ext/uuid,$(OUTDIR)ext/uuid/include,$(sort $(wildcard ext/uuid/*.h ext/uuid/*.hh)))
 
 
 $(OUTDIR)gen-epub-book$(EXE) : $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,$(OBJ),$(SOURCES))) $(foreach f,$(ASSETS),$(BLDDIR)$(f)$(OBJ)) $(BLDDIR)mime_type/mime_type.o
-	$(CXX) $(CXXAR) $(LDAR) -o$@ $^ $(PIC) $(LDAR)
+	$(CXX) $(CXXAR) -o$@ $^ $(PIC) $(LDAR)
+
+$(OUTDIR)gen-epub-book-tests$(EXE) : $(subst tests/,$(BLDDIR)test_obj/,$(subst .cpp,$(OBJ),$(TEST_SOURCES))) $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,$(OBJ),$(filter-out src/main.cpp,$(SOURCES)))) $(foreach f,$(ASSETS),$(BLDDIR)$(f)$(OBJ)) $(BLDDIR)mime_type/mime_type.o
+	$(CXX) $(CXXAR) -o$@ $^ $(PIC) $(LDAR)
 
 $(OUTDIR)ext/cpr/lib/libcpr.a : ext/cpr/CMakeLists.txt
 	@mkdir -p $(abspath $(dir $@)..)
@@ -78,6 +86,10 @@ $(BLDDIR)mime_type/mime_type.cpp : ext/mime.types
 $(OBJDIR)%$(OBJ) : $(SRCDIR)%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXAR) $(INCAR) $(VERAR) -c -o$@ $^
+
+$(BLDDIR)test_obj/%$(OBJ) : tests/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXAR) $(INCAR) -Isrc -c -o$@ $^
 
 $(BLDDIR)assets/%$(OBJ) : assets/%
 	@mkdir -p $(dir $@)

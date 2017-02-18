@@ -23,6 +23,10 @@
 			"path": "assets"
 		},
 		{
+			"name": "Tests",
+			"path": "tests"
+		},
+		{
 			"file_include_patterns":
 			[
 				"*Makefile*",

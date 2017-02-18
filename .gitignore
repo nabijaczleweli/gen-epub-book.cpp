@@ -3,6 +3,8 @@
 !examples/***
 !assets
 !assets/**
+!tests
+!tests/**
 !ext
 !ext/**
 !src
