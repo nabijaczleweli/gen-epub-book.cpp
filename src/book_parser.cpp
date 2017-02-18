@@ -116,6 +116,8 @@ void detail::book_parser::take_line(const std::string & line) {
 	} else if(key == "Language") {
 		if(language)
 			throw "Language key specified at least twice.";
+		else if(!check_language(value.c_str()))
+			throw "Language " + value + " not valid BCP47.";
 		else
 			language = value;
 	}

@@ -113,4 +113,4 @@ $(OUTDIR)examples/%.mobi : $(OUTDIR)examples/%.epub
 
 $(OUTDIR)examples/%.epub : $(OUTDIR)gen-epub-book$(EXE) examples/%.epupp
 	@mkdir -p $(dir $@)
-	@$< "$(filter-out $<,$^)" "$@"
+	$< "$(filter-out $<,$^)" "$@"
