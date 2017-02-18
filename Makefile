@@ -23,23 +23,25 @@
 include configMakefile
 
 
-LDAR := $(PIC) $(foreach l,ext ext/cpr/lib ext/uuid/.libs,-L$(OUTDIR)$(l)) $(foreach l,cpr curl minizip z uuid++,-l$(l))
+LDAR := $(PIC) $(foreach l,ext ext/cpr/lib,-L$(OUTDIR)$(l)) $(foreach l,cpr curl minizip z uuid++,-l$(l))
 VERAR := $(foreach l,GEN_EPUB_BOOK_CPP CPR MINIZIP TCLAP UUID,-D$(l)_VERSION='$($(l)_VERSION)')
 INCAR := $(foreach l,$(foreach l,$(foreach l,cpr TCLAP minizip,$(l)/include) Optional,ext/$(l)) $(OUTDIR)ext/uuid/include,-isystem$(l))
+BOOK_SOURCES := $(sort $(wildcard examples/*.epupp examples/**/*.epupp examples/**/**/*.epupp examples/**/**/**/*.epupp))
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
 ASSETS := $(sort $(wildcard assets/* assets/**/* assets/**/**/* assets/**/**/**/*))
 
-.PHONY : all clean cpr minizip uuid exe
+.PHONY : all clean cpr minizip uuid exe examples
 
-all : cpr minizip uuid exe
+all : cpr minizip uuid exe examples
 
 clean :
 	rm -rf $(OUTDIR)
 
 exe : $(OUTDIR)gen-epub-book$(EXE)
+examples : $(OUTDIR)gen-epub-book$(EXE) $(patsubst %.epupp,$(OUTDIR)%.epub,$(BOOK_SOURCES)) $(patsubst %.epupp,$(OUTDIR)%.mobi,$(BOOK_SOURCES))
 cpr : $(OUTDIR)ext/cpr/lib/libcpr.a
 minizip : $(OUTDIR)ext/libminizip.a
-uuid : $(OUTDIR)ext/uuid/.libs/libuuid++.a $(subst ext/uuid,$(OUTDIR)ext/uuid/include,$(sort $(wildcard ext/uuid/*.h ext/uuid/*.hh)))
+uuid : $(OUTDIR)ext/libuuid++.a $(subst ext/uuid,$(OUTDIR)ext/uuid/include,$(sort $(wildcard ext/uuid/*.h ext/uuid/*.hh)))
 
 
 $(OUTDIR)gen-epub-book$(EXE) : $(subst $(SRCDIR),$(OBJDIR),$(subst .cpp,$(OBJ),$(SOURCES))) $(foreach f,$(ASSETS),$(BLDDIR)$(f)$(OBJ)) $(BLDDIR)mime_type/mime_type.o
@@ -53,10 +55,11 @@ $(OUTDIR)ext/cpr/lib/libcpr.a : ext/cpr/CMakeLists.txt
 $(OUTDIR)ext/libminizip.a : $(subst ext/minizip/src,$(OUTDIR)ext/minizip,$(subst .c,$(OBJ),$(wildcard ext/minizip/src/*.c)))
 	$(AR) crs $@ $^
 
-$(OUTDIR)ext/uuid/.libs/libuuid++.a : ext/uuid/configure
+$(OUTDIR)ext/libuuid++.a : ext/uuid/configure
 	@mkdir -p $(OUTDIR)ext/uuid
 	cd "$(OUTDIR)ext/uuid" && "$(realpath $^)" --with-cxx
 	$(MAKE) -C $(OUTDIR)ext/uuid
+	cp $(OUTDIR)ext/uuid/.libs/libuuid++.a $@
 
 $(BLDDIR)mime_type/mime_type.o : $(BLDDIR)mime_type/mime_type.cpp
 	@mkdir -p $(dir $@)
@@ -91,3 +94,11 @@ $(OUTDIR)ext/minizip/%$(OBJ) : ext/minizip/src/%.c
 $(OUTDIR)ext/uuid/include/% : ext/uuid/%
 	@mkdir -p $(dir $@)
 	cp $^ $@
+
+$(OUTDIR)examples/%.mobi : $(OUTDIR)examples/%.epub
+	@mkdir -p $(dir $@)
+	$(CALIBRE_CONVERT) "$^" "$@"
+
+$(OUTDIR)examples/%.epub : $(OUTDIR)gen-epub-book$(EXE) examples/%.epupp
+	@mkdir -p $(dir $@)
+	@$< "$(filter-out $<,$^)" "$@"

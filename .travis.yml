@@ -7,7 +7,7 @@ cache:
 
 env:
   global:
-    - PATH="$HOME/bin:$PATH"
+    - PATH="$HOME/bin:$HOME/calibre:$PATH"
     - CMAKE_VERSION_PREFIX=3.7
     - CMAKE_VERSION_FULL=3.7.2
     - NINJA_VERSION=1.7.2
@@ -60,6 +60,9 @@ before_install:
     fi
 
 install:
+  - if [ "$LANGUAGE" == "C++" ]; then curl -SL https://download.calibre-ebook.com/linux-installer.py | python -c "import sys; import os; main=lambda x:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main(os.getenv('HOME'))"; fi
+  - if [ "$LANGUAGE" == "C++" ]; then ebook-convert --version; fi
+  -
   - if [ "$LANGUAGE" == "C++" ]; then mkdir -p /tmp/tools; pushd /tmp/tools; fi
   - if [ "$LANGUAGE" == "C++" ] && [[ ! -f "cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh" ]]; then
       curl -SOL "https://cmake.org/files/v$CMAKE_VERSION_PREFIX/cmake-$CMAKE_VERSION_FULL-Linux-x86_64.sh";
@@ -89,7 +92,7 @@ script:
 
 after_success:
   - if [ "$LANGUAGE" == "C++" ] && [ "$DEPLOY" ] && [ "$TRAVIS_TAG" ]; then
-      cp "release/gen-epub-book" "$DEPLOY_FILE";
+      cp "release/gen-epub-book.out" "$DEPLOY_FILE";
       strip --strip-all --remove-section=.comment --remove-section=.note "$DEPLOY_FILE";
     fi
   - if [ "$LANGUAGE" == "Ruby" ] && [ "$TRAVIS_SECURE_ENV_VARS" == "true" ] && [ "$TRAVIS_COMMIT_RANGE" ] && ! [ "$TRAVIS_TAG" ]; then
