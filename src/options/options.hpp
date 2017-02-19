@@ -23,13 +23,14 @@
 #pragma once
 
 
+#include <optional.hpp>
 #include <string>
 #include <tuple>
 
 
 struct options {
-	std::string in_file;
-	std::string out_file;
+	std::experimental::optional<std::string> in_file;
+	std::experimental::optional<std::string> out_file;
 	std::string relative_root;
 
 

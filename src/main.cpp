@@ -26,6 +26,13 @@
 #include <iostream>
 
 
+#ifdef _WIN32
+#define STDOUT "CON"
+#else
+#define STDOUT "/dev/stdout"
+#endif
+
+
 int main(int argc, char ** argv) {
 	const auto opts_r = options::parse(argc, argv);
 	if(std::get<1>(opts_r)) {
@@ -34,9 +41,9 @@ int main(int argc, char ** argv) {
 	}
 	const auto opts = std::move(std::get<0>(opts_r));
 
-	std::ifstream in(opts.in_file);
+	std::ifstream in(opts.in_file.value_or(""));
 	try {
-		book::from(opts.relative_root.c_str(), in).write_to(opts.out_file.c_str());
+		book::from(opts.relative_root.c_str(), opts.in_file ? in : std::cin).write_to(opts.out_file.value_or(STDOUT).c_str());
 	} catch(const char * s) {
 		std::cerr << s << '\n';
 		return 2;

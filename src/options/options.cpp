@@ -36,28 +36,33 @@ std::tuple<options, int, std::string> options::parse(int argc, const char * cons
 		existing_file_constraint input_file_constraint("input file");
 
 		TCLAP::CmdLine command_line("gen-epub-book -- generate an ePub book from a simple plaintext descriptor", ' ', GEN_EPUB_BOOK_CPP_VERSION);
-		TCLAP::UnlabeledValueArg<std::string> in_file("infile", "File to parse", true, "", &input_file_constraint, command_line);
-		TCLAP::UnlabeledValueArg<std::string> out_file("outfile", "File to write the book to", true, "", "output file", command_line);
+		TCLAP::UnlabeledValueArg<std::string> in_file("infile", "File to parse or '-' for stdin", true, "", &input_file_constraint, command_line);
+		TCLAP::UnlabeledValueArg<std::string> out_file("outfile", "File to write the book to or '-' for stdout", true, "", "output file or '-'", command_line);
 
 		command_line.setExceptionHandling(false);
 		command_line.parse(argc, argv);
 
 		if(in_file.getValue().empty())
 			return std::make_tuple(ret, 1, "Input file can't be empty"s);
-		else {
-			ret.in_file = in_file;
+		else if(in_file.getValue() == "-") {
+			ret.in_file       = {};
+			ret.relative_root = "./";
+		} else {
+			ret.in_file = {in_file};
 
-			const auto slash_idx = ret.in_file.find_last_of("/\\");
+			const auto slash_idx = in_file.getValue().find_last_of("/\\");
 			if(slash_idx == std::string::npos)
 				ret.relative_root = "./";
 			else
-				ret.relative_root = ret.in_file.substr(0, slash_idx + 1);
+				ret.relative_root = in_file.getValue().substr(0, slash_idx + 1);
 		}
 
 		if(out_file.getValue().empty())
 			return std::make_tuple(ret, 1, "Output file can't be empty"s);
+		else if(out_file.getValue() == "-")
+			ret.out_file = {};
 		else
-			ret.out_file = out_file;
+			ret.out_file = {out_file};
 	} catch(const TCLAP::ArgException & e) {
 		return std::make_tuple(ret, 1, std::string(argv[0]) + ": error: parsing arguments failed (" + e.error() + ") for " + e.argId());
 	}

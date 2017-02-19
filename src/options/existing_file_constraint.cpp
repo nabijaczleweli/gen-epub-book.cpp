@@ -26,7 +26,7 @@
 
 
 std::string existing_file_constraint::description() const {
-	return "existing file";
+	return "existing file or '-'";
 }
 
 std::string existing_file_constraint::shortID() const {
@@ -34,7 +34,7 @@ std::string existing_file_constraint::shortID() const {
 }
 
 bool existing_file_constraint::check(const std::string & value) const {
-	return file_exists(value.c_str());
+	return value == "-" || file_exists(value.c_str());
 }
 
 existing_file_constraint::existing_file_constraint(std::string argname) : arg_name(std::move(argname)) {}
