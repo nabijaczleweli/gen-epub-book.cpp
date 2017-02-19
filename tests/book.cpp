@@ -22,7 +22,9 @@
 
 
 #include "book.hpp"
+#include <algorithm>
 #include <catch.hpp>
+#include <cstring>
 #include <fstream>
 #include <numeric>
 #include <vector>
@@ -33,6 +35,7 @@ using namespace std::literals;
 
 template <class T>
 static std::vector<T> book_lines();
+static std::vector<const char *> book_lines_without(const char * key);
 static std::string book_str();
 static void check_book(const book & b);
 
@@ -77,7 +80,19 @@ TEST_CASE("book::from() -- incorrect", "[book]") {
 	REQUIRE_THROWS_WITH(book::from("examples/", "Image-Content: simple/chapter_image.jpg\n"), "Image-Content file \"simple/chapter_image.jpg\" nonexistant.");
 	REQUIRE_THROWS_WITH(book::from("examples/", "Cover: cover.jpg\n"), "Cover file \"cover.jpg\" nonexistant.");
 	REQUIRE_THROWS_WITH(book::from("examples/", "Date: 2017-02-08T15:30:18+01:0\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Date: 2017-02-08T15:30:18\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Date: 2017-02-08T1:30:18\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Date: Sun Feb 19 14:33:26 Central European Standard Time 2017\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Date: Sun, 19 Feb 2017 14:33:40 Central European Standard Time\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Date: yesterday\n"), "Date malformed.");
 	REQUIRE_THROWS_WITH(book::from("examples/", "Language: l1\n"), "Language l1 not valid BCP47.");
+}
+
+TEST_CASE("book::from() -- missing", "[book]") {
+	for(auto key : {"Name", "Author", "Date", "Language"}) {
+		const auto lines = book_lines_without(key);
+		REQUIRE_THROWS_WITH(book::from("examples/", lines.begin(), lines.end()), "Required key "s + key + " not specified");
+	}
 }
 
 TEST_CASE("book::operator==()", "[book]") {
@@ -88,9 +103,9 @@ TEST_CASE("book::operator==()", "[book]") {
 template <class T>
 static std::vector<T> book_lines() {
 	return {
-	    "Name: Everything we got, in one thing",                                                                                         //
+	    "   Name: Everything we got, in one thing",                                                                                      //
 	    "",                                                                                                                              //
-	    "Content: simple/ctnt.html",                                                                                                     //
+	    "Content \t: simple/ctnt.html \t\t  ",                                                                                           //
 	    "String-Content: <strong>SEIZE THE MEANS OF PRODUCTION!</strong>",                                                               //
 	    "Image-Content: simple/chapter_image.png",                                                                                       //
 	    "Network-Image-Content: https://cdn.rawgit.com/nabijaczleweli/nabijaczleweli.github.io/dev/src/writing_prompts/slim_shady.png",  //
@@ -101,6 +116,12 @@ static std::vector<T> book_lines() {
 	    "Date: 2017-02-08T15:30:18+01:00",                                                                                               //
 	    "Language: en-GB",                                                                                                               //
 	};
+}
+
+static std::vector<const char *> book_lines_without(const char * key) {
+	auto ln = book_lines<const char *>();
+	ln.erase(std::remove_if(ln.begin(), ln.end(), [&](auto l) { return std::strstr(l, key); }));
+	return ln;
 }
 
 static std::string book_str() {
