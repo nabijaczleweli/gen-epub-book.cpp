@@ -70,6 +70,19 @@ book book::from(const char * relroot, const char * descriptor) {
 	return b;
 }
 
+bool operator==(const content_element & lhs, const content_element & rhs) {
+	return lhs.id == rhs.id && lhs.filename == rhs.filename && lhs.data == rhs.data && lhs.tp == rhs.tp;
+}
+
+bool operator==(const book & lhs, const book & rhs) {
+	return lhs.content == rhs.content && lhs.non_content == rhs.non_content && lhs.name == rhs.name && lhs.cover == rhs.cover && lhs.author == rhs.author &&
+	       lhs.date.first.tm_min == rhs.date.first.tm_min && lhs.date.first.tm_hour == rhs.date.first.tm_hour &&
+	       lhs.date.first.tm_mday == rhs.date.first.tm_mday && lhs.date.first.tm_mon == rhs.date.first.tm_mon &&
+	       lhs.date.first.tm_year == rhs.date.first.tm_year && lhs.date.first.tm_wday == rhs.date.first.tm_wday &&
+	       lhs.date.first.tm_yday == rhs.date.first.tm_yday && lhs.date.first.tm_isdst == rhs.date.first.tm_isdst && lhs.date.second == rhs.date.second &&
+	       lhs.language == rhs.language;
+}
+
 void book::write_to(const char * path) {
 	std::unique_ptr<void, zipFile_deleter> epub(zipOpen(path, APPEND_STATUS_CREATE));
 

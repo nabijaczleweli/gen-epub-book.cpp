@@ -33,5 +33,7 @@ struct options {
 	std::string relative_root;
 
 
-	static std::tuple<options, int, std::string> parse(int argc, char ** argv);
+	static std::tuple<options, int, std::string> parse(int argc, const char * const * argv);
 };
+
+bool operator==(const options & lhs, const options & rhs);

@@ -21,53 +21,22 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#define CATCH_CONFIG_MAIN
+#include "util.hpp"
 #include <catch.hpp>
 
-#include "test_util.hpp"
-#include <cstdlib>
-#include <string>
 
-const char * temp_dir() {
-	for(auto e : {"TEMP", "TMP"})
-		if(const auto t = std::getenv(e))
-			return t;
-	return "/tmp";
+TEST_CASE("util::url_id()", "[util][url]") {
+	REQUIRE(url_id("http://i.imgur.com/ViQ2WED.jpg") == "ViQ2WED");
+	REQUIRE(url_id("https://cdn.rawgit.com/nabijaczleweli/nabijaczleweli.github.io/dev/src/writing_prompts/slim_shady.png") == "slim_shady");
+	REQUIRE(url_id("https://img09.deviantart.net/e6c8/i/2015/138/8/0/the_pursuer_by_artsed-d7lbiua.jpg") == "the_pursuer_by_artsed-d7lbiua");
+	REQUIRE(url_id("https://i.imgur.com/") == "");
+	REQUIRE(url_id("https://i.imgur.com/.png") == "");
 }
 
-
-#ifdef _WIN32
-
-#include <windows.h>
-
-static void make_last_dir(const char * path) {
-	CreateDirectory(path, nullptr);
-}
-
-#else
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-static void make_last_dir(const char * path) {
-	mkdir(path, S_IRWXU);
-}
-
-#endif
-
-
-// Adapted from http://stackoverflow.com/a/7430262/2851815
-void make_directory_recursive(const char * path) {
-	std::string tmp(path);
-
-	if(tmp[tmp.size() - 1] == '/')
-		tmp[tmp.size() - 1] = 0;
-	for(char & c : tmp)
-		if(c == '/') {
-			c = 0;
-			make_last_dir(tmp.c_str());
-			c = '/';
-		}
-	make_last_dir(tmp.c_str());
+TEST_CASE("util::url_fname()", "[util][url]") {
+	REQUIRE(url_fname("http://i.imgur.com/ViQ2WED.jpg") == "ViQ2WED.jpg");
+	REQUIRE(url_fname("https://cdn.rawgit.com/nabijaczleweli/nabijaczleweli.github.io/dev/src/writing_prompts/slim_shady.png") == "slim_shady.png");
+	REQUIRE(url_fname("https://img09.deviantart.net/e6c8/i/2015/138/8/0/the_pursuer_by_artsed-d7lbiua.jpg") == "the_pursuer_by_artsed-d7lbiua.jpg");
+	REQUIRE(url_fname("https://i.imgur.com/") == "");
+	REQUIRE(url_fname("https://i.imgur.com/.png") == ".png");
 }

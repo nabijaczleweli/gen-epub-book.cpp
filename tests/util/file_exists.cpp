@@ -21,53 +21,34 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#define CATCH_CONFIG_MAIN
+#include "../test_util.hpp"
+#include "util.hpp"
 #include <catch.hpp>
-
-#include "test_util.hpp"
-#include <cstdlib>
 #include <string>
+#include <fstream>
 
-const char * temp_dir() {
-	for(auto e : {"TEMP", "TMP"})
-		if(const auto t = std::getenv(e))
-			return t;
-	return "/tmp";
+
+using namespace std::literals;
+
+
+TEST_CASE("util::file_exists() -- nonexistant", "[util]") {
+	const auto temp = temp_dir() + "/gen-epub-book.cpp/util/file_exists/"s;
+	make_directory_recursive(temp.c_str());
+
+	REQUIRE_FALSE(file_exists((temp + "nonexistant_file").c_str()));
 }
 
+TEST_CASE("util::file_exists() -- nonfile", "[util]") {
+	const auto temp = temp_dir() + "/gen-epub-book.cpp/util/file_exists/actually_a_dir"s;
+	make_directory_recursive(temp.c_str());
 
-#ifdef _WIN32
-
-#include <windows.h>
-
-static void make_last_dir(const char * path) {
-	CreateDirectory(path, nullptr);
+	REQUIRE_FALSE(file_exists(temp.c_str()));
 }
 
-#else
+TEST_CASE("util::file_exists() -- existant file", "[util]") {
+	const auto temp = temp_dir() + "/gen-epub-book.cpp/util/file_exists/"s;
+	make_directory_recursive(temp.c_str());
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-static void make_last_dir(const char * path) {
-	mkdir(path, S_IRWXU);
-}
-
-#endif
-
-
-// Adapted from http://stackoverflow.com/a/7430262/2851815
-void make_directory_recursive(const char * path) {
-	std::string tmp(path);
-
-	if(tmp[tmp.size() - 1] == '/')
-		tmp[tmp.size() - 1] = 0;
-	for(char & c : tmp)
-		if(c == '/') {
-			c = 0;
-			make_last_dir(tmp.c_str());
-			c = '/';
-		}
-	make_last_dir(tmp.c_str());
+	std::ofstream(temp + "file");
+	REQUIRE(file_exists((temp + "file").c_str()));
 }

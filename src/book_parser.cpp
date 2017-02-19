@@ -101,7 +101,7 @@ void detail::book_parser::take_line(const std::string & line) {
 		if(date)
 			throw "Date key specified at least twice.";
 		else {
-			std::tm time;
+			std::tm time{};
 			char tz[6];
 
 			std::istringstream ss(value);

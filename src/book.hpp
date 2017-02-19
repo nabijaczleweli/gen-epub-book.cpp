@@ -49,6 +49,7 @@ struct content_element {
 class book {
 private:
 	friend struct detail::book_parser;
+	friend bool operator==(const book & lhs, const book & rhs);
 
 	uuid id;
 	std::vector<content_element> content;
@@ -75,6 +76,9 @@ public:
 	void write_to(const char * path);
 };
 
+bool operator==(const content_element & lhs, const content_element & rhs);
+bool operator==(const book & lhs, const book & rhs);
+
 namespace detail {
 	struct book_parser {
 		unsigned int id;
@@ -99,8 +103,8 @@ template <class Iter>
 book book::from(const char * relroot, Iter lines_start, Iter lines_end) {
 	detail::book_parser p{};
 	p.relroot = relroot;
-	for(auto itr = lines_start; itr != lines_end; ++lines_start)
-		p.take_line(*itr);
+	while(lines_start != lines_end)
+		p.take_line(*lines_start++);
 
 	book b{};
 	p.construct(b);

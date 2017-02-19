@@ -29,7 +29,7 @@
 using namespace std::literals;
 
 
-std::tuple<options, int, std::string> options::parse(int argc, char ** argv) {
+std::tuple<options, int, std::string> options::parse(int argc, const char * const * argv) {
 	options ret;
 
 	try {
@@ -39,6 +39,7 @@ std::tuple<options, int, std::string> options::parse(int argc, char ** argv) {
 		TCLAP::UnlabeledValueArg<std::string> in_file("infile", "File to parse", true, "", &input_file_constraint, command_line);
 		TCLAP::UnlabeledValueArg<std::string> out_file("outfile", "File to write the book to", true, "", "output file", command_line);
 
+		command_line.setExceptionHandling(false);
 		command_line.parse(argc, argv);
 
 		if(in_file.getValue().empty())
@@ -58,8 +59,12 @@ std::tuple<options, int, std::string> options::parse(int argc, char ** argv) {
 		else
 			ret.out_file = out_file;
 	} catch(const TCLAP::ArgException & e) {
-		return std::make_tuple(ret, 1, std::string(argv[0]) + ": error: parsing arguments failed (" + e.error() + ") for argument " + e.argId());
+		return std::make_tuple(ret, 1, std::string(argv[0]) + ": error: parsing arguments failed (" + e.error() + ") for " + e.argId());
 	}
 
 	return std::make_tuple(ret, 0, ""s);
+}
+
+bool operator==(const options & lhs, const options & rhs) {
+	return lhs.in_file == rhs.in_file && lhs.out_file == rhs.out_file && lhs.relative_root == rhs.relative_root;
 }

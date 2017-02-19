@@ -21,53 +21,28 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#define CATCH_CONFIG_MAIN
+#include "util.hpp"
 #include <catch.hpp>
 
-#include "test_util.hpp"
-#include <cstdlib>
-#include <string>
 
-const char * temp_dir() {
-	for(auto e : {"TEMP", "TMP"})
-		if(const auto t = std::getenv(e))
-			return t;
-	return "/tmp";
+// Examples from http://schneegans.de/lv
+TEST_CASE("util::check_language() -- correct", "[util]") {
+	REQUIRE(check_language("de"));
+	REQUIRE(check_language("de-CH"));
+	REQUIRE(check_language("de-DE-1901"));
+	REQUIRE(check_language("es-419"));
+	REQUIRE(check_language("sl-IT-nedis"));
+	REQUIRE(check_language("en-US-boont"));
+	REQUIRE(check_language("mn-Cyrl-MN"));
+	REQUIRE(check_language("x-fr-CH"));
+	REQUIRE(check_language("en-GB-boont-r-extended-sequence-x-private"));
+	REQUIRE(check_language("sr-Cyrl"));
+	REQUIRE(check_language("sr-Latn"));
+	REQUIRE(check_language("hy-Latn-IT-arevela"));
+	REQUIRE(check_language("zh-TW"));
 }
 
-
-#ifdef _WIN32
-
-#include <windows.h>
-
-static void make_last_dir(const char * path) {
-	CreateDirectory(path, nullptr);
-}
-
-#else
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-static void make_last_dir(const char * path) {
-	mkdir(path, S_IRWXU);
-}
-
-#endif
-
-
-// Adapted from http://stackoverflow.com/a/7430262/2851815
-void make_directory_recursive(const char * path) {
-	std::string tmp(path);
-
-	if(tmp[tmp.size() - 1] == '/')
-		tmp[tmp.size() - 1] = 0;
-	for(char & c : tmp)
-		if(c == '/') {
-			c = 0;
-			make_last_dir(tmp.c_str());
-			c = '/';
-		}
-	make_last_dir(tmp.c_str());
+TEST_CASE("util::check_language() -- incorrect", "[util]") {
+	REQUIRE_FALSE(check_language("en_GB"));
+	REQUIRE_FALSE(check_language("en*"));
 }

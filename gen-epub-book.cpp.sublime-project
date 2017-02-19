@@ -27,6 +27,10 @@
 			"path": "tests"
 		},
 		{
+			"name": "Examples",
+			"path": "examples"
+		},
+		{
 			"file_include_patterns":
 			[
 				"*Makefile*",

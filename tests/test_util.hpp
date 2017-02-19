@@ -21,53 +21,5 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#define CATCH_CONFIG_MAIN
-#include <catch.hpp>
-
-#include "test_util.hpp"
-#include <cstdlib>
-#include <string>
-
-const char * temp_dir() {
-	for(auto e : {"TEMP", "TMP"})
-		if(const auto t = std::getenv(e))
-			return t;
-	return "/tmp";
-}
-
-
-#ifdef _WIN32
-
-#include <windows.h>
-
-static void make_last_dir(const char * path) {
-	CreateDirectory(path, nullptr);
-}
-
-#else
-
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-static void make_last_dir(const char * path) {
-	mkdir(path, S_IRWXU);
-}
-
-#endif
-
-
-// Adapted from http://stackoverflow.com/a/7430262/2851815
-void make_directory_recursive(const char * path) {
-	std::string tmp(path);
-
-	if(tmp[tmp.size() - 1] == '/')
-		tmp[tmp.size() - 1] = 0;
-	for(char & c : tmp)
-		if(c == '/') {
-			c = 0;
-			make_last_dir(tmp.c_str());
-			c = '/';
-		}
-	make_last_dir(tmp.c_str());
-}
+void make_directory_recursive(const char * path);
+const char * temp_dir();
