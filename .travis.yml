@@ -4,6 +4,8 @@ cache:
   apt: true
   directories:
     - /tmp/tools
+git:
+  submodules: false
 
 env:
   global:
@@ -60,6 +62,7 @@ before_install:
     fi
 
 install:
+  - if [ "$LANGUAGE" == "C++" ]; then git submodule update --init --recursive; fi
   - if [ "$LANGUAGE" == "C++" ]; then curl -SL https://download.calibre-ebook.com/linux-installer.py | python -c "import sys; import os; main=lambda x:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main(os.getenv('HOME'))"; fi
   - if [ "$LANGUAGE" == "C++" ]; then ebook-convert --version; fi
   -
@@ -92,7 +95,7 @@ script:
 
 after_success:
   - if [ "$LANGUAGE" == "C++" ] && [ "$DEPLOY" ] && [ "$TRAVIS_TAG" ]; then
-      cp "release/gen-epub-book.out" "$DEPLOY_FILE";
+      cp "out/gen-epub-book.out" "$DEPLOY_FILE";
       strip --strip-all --remove-section=.comment --remove-section=.note "$DEPLOY_FILE";
     fi
   - if [ "$LANGUAGE" == "Ruby" ] && [ "$TRAVIS_SECURE_ENV_VARS" == "true" ] && [ "$TRAVIS_COMMIT_RANGE" ] && ! [ "$TRAVIS_TAG" ]; then
