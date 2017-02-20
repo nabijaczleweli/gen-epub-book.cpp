@@ -32,3 +32,5 @@ For more detailed usage information and tag list, see the [manpage](https://cdn.
 The original in [AWK](https://github.com/nabijaczleweli/gen-epub-book).
 
 A rewrite in [Rust](https://github.com/nabijaczleweli/gen-epub-book.rs).
+
+A rewrite in [Scala](https://github.com/nabijaczleweli/gen-epub-book.scala).
