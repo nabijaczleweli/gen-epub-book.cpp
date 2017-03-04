@@ -6,3 +6,7 @@
 	path = ext/Catch
 	url = https://github.com/philsquared/Catch.git
 	branch = v1.7.2
+[submodule "ext/optional-lite"]
+	path = ext/optional-lite
+	url = https://github.com/martinmoene/optional-lite
+	branch = v2.0.0
