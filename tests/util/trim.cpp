@@ -21,8 +21,8 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#include <catch.hpp>
 #include "util.hpp"
+#include <catch.hpp>
 
 
 TEST_CASE("util::ltrim()", "[util][trim]") {

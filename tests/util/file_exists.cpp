@@ -24,8 +24,8 @@
 #include "../test_util.hpp"
 #include "util.hpp"
 #include <catch.hpp>
-#include <string>
 #include <fstream>
+#include <string>
 
 
 using namespace std::literals;

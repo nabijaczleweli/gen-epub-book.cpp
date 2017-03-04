@@ -131,8 +131,7 @@ static std::string book_str() {
 
 static void check_book(const book & b) {
 	REQUIRE(b.name == "Everything we got, in one thing");
-	REQUIRE(b.cover ==
-	        std::experimental::make_optional(content_element{"network-cover-ViQ2WED", "ViQ2WED.jpg", "http://i.imgur.com/ViQ2WED.jpg", content_type::network}));
+	REQUIRE(b.cover == nonstd::make_optional(content_element{"network-cover-ViQ2WED", "ViQ2WED.jpg", "http://i.imgur.com/ViQ2WED.jpg", content_type::network}));
 	REQUIRE(b.author == "nabijaczleweli");
 	REQUIRE(b.date.first.tm_sec == 18);
 	REQUIRE(b.date.first.tm_min == 30);

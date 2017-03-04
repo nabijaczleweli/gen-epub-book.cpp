@@ -66,7 +66,7 @@ std::string url_fname(const std::string & u) {
 	return u.substr(u.find_last_of('/') + 1);
 }
 
-std::experimental::optional<std::string> get_ebook_title(const std::string & in) {
+nonstd::optional<std::string> get_ebook_title(const std::string & in) {
 	static const std::regex title_rgx("<!-- ePub title: \"([^\"]+)\" -->", std::regex_constants::ECMAScript | std::regex_constants::optimize);
 
 	std::stringstream whole;

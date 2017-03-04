@@ -34,7 +34,7 @@ using namespace std::literals;
 
 
 template <class T>
-static T try_option(std::experimental::optional<T> opt, const char * name);
+static T try_option(nonstd::optional<T> opt, const char * name);
 
 
 void detail::book_parser::take_line(const char * line) {
@@ -140,7 +140,7 @@ void detail::book_parser::construct(book & b) {
 
 
 template <class T>
-static T try_option(std::experimental::optional<T> opt, const char * name) {
+static T try_option(nonstd::optional<T> opt, const char * name) {
 	if(opt)
 		return std::move(*opt);
 	else

@@ -25,7 +25,7 @@
 
 #include <ctime>
 #include <istream>
-#include <optional.hpp>
+#include <nonstd/optional.hpp>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -61,7 +61,7 @@ private:
 
 public:
 	std::string name;
-	std::experimental::optional<content_element> cover;
+	nonstd::optional<content_element> cover;
 	std::string author;
 	std::pair<std::tm, std::string> date;
 	std::string language;
@@ -83,11 +83,11 @@ namespace detail {
 	struct book_parser {
 		unsigned int id;
 		const char * relroot;
-		std::experimental::optional<std::string> name;
-		std::experimental::optional<content_element> cover;
-		std::experimental::optional<std::string> author;
-		std::experimental::optional<std::pair<std::tm, std::string>> date;
-		std::experimental::optional<std::string> language;
+		nonstd::optional<std::string> name;
+		nonstd::optional<content_element> cover;
+		nonstd::optional<std::string> author;
+		nonstd::optional<std::pair<std::tm, std::string>> date;
+		nonstd::optional<std::string> language;
 		std::vector<content_element> content;
 		std::vector<content_element> non_content;
 
