@@ -92,6 +92,13 @@ void detail::book_parser::take_line(const std::string & line) {
 			throw "[Network-]Cover key specified at least twice.";
 		else
 			cover = content_element{"network-cover-" + url_id(value), url_fname(value), value, content_type::network};
+	else if(key == "Include")
+		if(!file_exists((relroot + value).c_str()))
+			throw "Include file \"" + value + "\" nonexistant.";
+		else
+			non_content.emplace_back(content_element{path_id(value), path_fname(value), relroot + value, content_type::path});
+	else if(key == "Network-Include")
+		non_content.emplace_back(content_element{url_id(value), url_fname(value), value, content_type::network});
 	else if(key == "Author")
 		if(author)
 			throw "Author key specified at least twice.";
