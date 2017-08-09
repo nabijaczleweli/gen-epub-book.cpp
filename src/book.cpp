@@ -231,16 +231,12 @@ void book::write_table_of_contents(void * epub) {
 			continue;
 
 		++nav_map_id;
-		uuid ctnt_id;
-		ctnt_id.make(UUID_MAKE_V4);
 
-		auto ctnt_id_s = id.string();
 		zipWriteInFileInZip(epub, "    <navPoint id=\"", std::strlen("    <navPoint id=\""));
-		zipWriteInFileInZip(epub, ctnt_id_s, std::strlen(ctnt_id_s));
+		zipWriteInFileInZip(epub, ctnt.id.c_str(), ctnt.id.size());
 		zipWriteInFileInZip(epub, "\" playOrder=\"", std::strlen("\" playOrder=\""));
 		zipWriteInFileInZip(epub, std::to_string(nav_map_id).c_str(), std::to_string(nav_map_id).size());
 		zipWriteInFileInZip(epub, "\">\n", std::strlen("\">\n"));
-		std::free(ctnt_id_s);
 
 		zipWriteInFileInZip(epub, "      <navLabel>\n", std::strlen("      <navLabel>\n"));
 

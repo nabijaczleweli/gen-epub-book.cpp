@@ -64,15 +64,15 @@ TEST_CASE("book::from(C string)", "[book]") {
 }
 
 TEST_CASE("book::from() -- double", "[book]") {
-	REQUIRE_THROWS_WITH(book::from("examples/", "Name: l1\nName: l2\n"), "Name key specified at least twice.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Author: l1\nAuthor: l2\n"), "Author key specified at least twice.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Date: 2017-02-08T15:30:18+01:00\nDate: 2017-02-08T15:30:18+02:00\n"), "Date key specified at least twice.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Language: en\nLanguage: pl\n"), "Language key specified at least twice.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Name: l1\nName: l2\n"), "Name key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Author: l1\nAuthor: l2\n"), "Author key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Date: 2017-02-08T15:30:18+01:00\nDate: 2017-02-08T15:30:18+02:00\n"), "Date key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Language: en\nLanguage: pl\n"), "Language key specified more than once.");
 
-	REQUIRE_THROWS_WITH(book::from("examples/", "Cover: cover.png\nCover: cover.png\n"), "[Network-]Cover key specified at least twice.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Network-Cover: l1\nCover: cover.png\n"), "[Network-]Cover key specified at least twice.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Cover: cover.png\nNetwork-Cover: l2\n"), "[Network-]Cover key specified at least twice.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Network-Cover: l1\nNetwork-Cover: l2\n"), "[Network-]Cover key specified at least twice.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Cover: cover.png\nCover: cover.png\n"), "[Network-]Cover key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Network-Cover: l1\nCover: cover.png\n"), "[Network-]Cover key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Cover: cover.png\nNetwork-Cover: l2\n"), "[Network-]Cover key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from("examples/", "Network-Cover: l1\nNetwork-Cover: l2\n"), "[Network-]Cover key specified more than once.");
 }
 
 TEST_CASE("book::from() -- incorrect", "[book]") {
@@ -131,7 +131,8 @@ static std::string book_str() {
 
 static void check_book(const book & b) {
 	REQUIRE(b.name == "Everything we got, in one thing");
-	REQUIRE(b.cover == nonstd::make_optional(content_element{"network-cover-ViQ2WED", "ViQ2WED.jpg", "http://i.imgur.com/ViQ2WED.jpg", content_type::network}));
+	REQUIRE(b.cover == nonstd::make_optional(content_element{"network-cover-data", "network-cover-data.html",
+	                                                         "<center><img src=\"ViQ2WED.jpg\" alt=\"cover\"></img></center>", content_type::string}));
 	REQUIRE(b.author == "nabijaczleweli");
 	REQUIRE(b.date.first.tm_sec == 18);
 	REQUIRE(b.date.first.tm_min == 30);

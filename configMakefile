@@ -54,7 +54,7 @@ CMAKE := cmake
 NINJA := ninja
 CALIBRE_CONVERT := ebook-convert
 CXXAR := -O3 -fomit-frame-pointer -std=c++14 -pedantic -Wall -Wextra -pipe $(INCCXXAR) $(PIC)
-CCAR := -O3 -fomit-frame-pointer -std=c11 -pipe $(PIC)
+CCAR := -O3 -fomit-frame-pointer -std=c99 -pipe $(PIC)
 
 OUTDIR := out/
 BLDDIR := out/build/

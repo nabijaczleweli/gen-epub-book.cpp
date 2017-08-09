@@ -115,6 +115,7 @@ application/exi					exi
 # application/font-sfnt
 application/font-tdpfr				pfr
 application/font-woff				woff
+application/font-woff2				woff2
 # application/framework-attributes+xml
 # application/geo+json
 application/gml+xml				gml
@@ -1348,7 +1349,7 @@ application/xcap-diff+xml			xdf
 # application/xcon-conference-info+xml
 # application/xcon-conference-info-diff+xml
 application/xenc+xml				xenc
-application/xhtml+xml				xhtml xht
+# application/xhtml+xml				xhtml xht html htm
 # application/xhtml-voice+xml
 application/xml					xml xsl
 application/xml-dtd				dtd

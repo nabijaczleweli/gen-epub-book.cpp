@@ -58,7 +58,7 @@ void detail::book_parser::take_line(const std::string & line) {
 
 	if(key == "Name")
 		if(name)
-			throw "Name key specified at least twice.";
+			throw "Name key specified more than once.";
 		else
 			name = value;
 	else if(key == "Content")
@@ -74,24 +74,32 @@ void detail::book_parser::take_line(const std::string & line) {
 		else {
 			non_content.emplace_back(content_element{path_id(value), path_fname(value), relroot + value, content_type::path});
 			content.emplace_back(content_element{"image-content-" + std::to_string(id), "image-data-" + std::to_string(id) + ".html",
-			                                     "<center><img src=\""s + path_fname(value) + "\"></img></center>", content_type::string});
+			                                     "<center><img src=\""s + path_fname(value) + "\" alt=\"" + path_fname(value) + "\"></img></center>",
+			                                     content_type::string});
 		}
 	else if(key == "Network-Image-Content") {
 		non_content.emplace_back(content_element{url_id(value), url_fname(value), value, content_type::network});
 		content.emplace_back(content_element{"network-image-content-" + std::to_string(id), "network-image-data-" + std::to_string(id) + ".html",
-		                                     "<center><img src=\"" + url_fname(value) + "\"></img></center>", content_type::string});
+		                                     "<center><img src=\"" + url_fname(value) + "\" alt=\"" + url_fname(value) + "\"></img></center>",
+		                                     content_type::string});
 	} else if(key == "Cover")
 		if(cover)
-			throw "[Network-]Cover key specified at least twice.";
+			throw "[Network-]Cover key specified more than once.";
 		else if(!file_exists((relroot + value).c_str()))
 			throw "Cover file \"" + value + "\" nonexistant.";
-		else
-			cover = content_element{path_id(value), path_fname(value), relroot + value, content_type::path};
+		else {
+			non_content.emplace_back(content_element{"cover-" + path_id(value), path_fname(value), relroot + value, content_type::path});
+			cover = content_element{"cover-data", "cover-data.html", "<center><img src=\""s + path_fname(value) + "\" alt=\"cover\"></img></center>",
+			                        content_type::string};
+		}
 	else if(key == "Network-Cover")
 		if(cover)
-			throw "[Network-]Cover key specified at least twice.";
-		else
-			cover = content_element{"network-cover-" + url_id(value), url_fname(value), value, content_type::network};
+			throw "[Network-]Cover key specified more than once.";
+		else {
+			non_content.emplace_back(content_element{"network-cover-" + url_id(value), url_fname(value), value, content_type::network});
+			cover = content_element{"network-cover-data", "network-cover-data.html", "<center><img src=\""s + url_fname(value) + "\" alt=\"cover\"></img></center>",
+			                        content_type::string};
+		}
 	else if(key == "Include")
 		if(!file_exists((relroot + value).c_str()))
 			throw "Include file \"" + value + "\" nonexistant.";
@@ -101,12 +109,12 @@ void detail::book_parser::take_line(const std::string & line) {
 		non_content.emplace_back(content_element{url_id(value), url_fname(value), value, content_type::network});
 	else if(key == "Author")
 		if(author)
-			throw "Author key specified at least twice.";
+			throw "Author key specified more than once.";
 		else
 			author = value;
 	else if(key == "Date") {
 		if(date)
-			throw "Date key specified at least twice.";
+			throw "Date key specified more than once.";
 		else {
 			std::tm time{};
 			char tz[6];
@@ -122,7 +130,7 @@ void detail::book_parser::take_line(const std::string & line) {
 		}
 	} else if(key == "Language") {
 		if(language)
-			throw "Language key specified at least twice.";
+			throw "Language key specified more than once.";
 		else if(!check_language(value.c_str()))
 			throw "Language " + value + " not valid BCP47.";
 		else
