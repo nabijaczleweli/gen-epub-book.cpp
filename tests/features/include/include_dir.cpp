@@ -81,11 +81,6 @@ TEST_CASE("features::include_dir(no name)::contains() -- existing", "[features][
 		include_dir dir("examples/");
 		CHECK(dir.contains("cover.png"));
 	}
-
-	{
-		include_dir dir("examples\\");
-		CHECK(dir.contains("cover.png"));
-	}
 }
 
 TEST_CASE("features::include_dir(name)::contains() -- existing", "[features][include]") {
@@ -96,11 +91,6 @@ TEST_CASE("features::include_dir(name)::contains() -- existing", "[features][inc
 
 	{
 		include_dir dir("ex", "examples/");
-		CHECK(dir.contains("cover.png"));
-	}
-
-	{
-		include_dir dir("ex", "examples\\");
 		CHECK(dir.contains("cover.png"));
 	}
 }
@@ -115,11 +105,6 @@ TEST_CASE("features::include_dir(no name)::contains() -- nonexistant", "[feature
 		include_dir dir("out/");
 		CHECK_FALSE(dir.contains("cover.png"));
 	}
-
-	{
-		include_dir dir("out\\");
-		CHECK_FALSE(dir.contains("cover.png"));
-	}
 }
 
 TEST_CASE("features::include_dir(name)::contains() -- nonexistant", "[features][include]") {
@@ -130,11 +115,6 @@ TEST_CASE("features::include_dir(name)::contains() -- nonexistant", "[features][
 
 	{
 		include_dir dir("o", "out/");
-		CHECK_FALSE(dir.contains("cover.png"));
-	}
-
-	{
-		include_dir dir("o", "out\\");
 		CHECK_FALSE(dir.contains("cover.png"));
 	}
 }
@@ -149,11 +129,6 @@ TEST_CASE("features::include_dir(no name)::resolve() -- existing", "[features][i
 		include_dir dir("examples/");
 		REQUIRE(dir.resolve("cover.png") == nonstd::make_optional("examples/cover.png"s));
 	}
-
-	{
-		include_dir dir("examples\\");
-		REQUIRE(dir.resolve("cover.png") == nonstd::make_optional("examples\\cover.png"s));
-	}
 }
 
 TEST_CASE("features::include_dir(name)::resolve() -- existing", "[features][include]") {
@@ -165,11 +140,6 @@ TEST_CASE("features::include_dir(name)::resolve() -- existing", "[features][incl
 	{
 		include_dir dir("ex", "examples/");
 		REQUIRE(dir.resolve("cover.png") == nonstd::make_optional("examples/cover.png"s));
-	}
-
-	{
-		include_dir dir("ex", "examples\\");
-		REQUIRE(dir.resolve("cover.png") == nonstd::make_optional("examples\\cover.png"s));
 	}
 }
 
@@ -183,11 +153,6 @@ TEST_CASE("features::include_dir(no name)::resolve() -- nonexistant", "[features
 		include_dir dir("out/");
 		CHECK_FALSE(dir.resolve("cover.png"));
 	}
-
-	{
-		include_dir dir("out\\");
-		CHECK_FALSE(dir.resolve("cover.png"));
-	}
 }
 
 TEST_CASE("features::include_dir(name)::resolve() -- nonexistant", "[features][include]") {
@@ -198,11 +163,6 @@ TEST_CASE("features::include_dir(name)::resolve() -- nonexistant", "[features][i
 
 	{
 		include_dir dir("o", "out/");
-		CHECK_FALSE(dir.resolve("cover.png"));
-	}
-
-	{
-		include_dir dir("o", "out\\");
 		CHECK_FALSE(dir.resolve("cover.png"));
 	}
 }

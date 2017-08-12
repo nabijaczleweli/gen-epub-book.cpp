@@ -40,7 +40,7 @@ static std::string book_str();
 static void check_book(const book & b);
 
 
-static const include_order examples_order{{{"examples/"s}, {"rel"s, "examples/relative_path_fuckery\\relative/path/"s}}};
+static const include_order examples_order{{{"examples/"s}, {"rel"s, "examples/relative_path_fuckery/relative/path/"s}}};
 
 
 TEST_CASE("book::from(C string iterator)", "[book]") {
