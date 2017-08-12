@@ -21,23 +21,26 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#pragma once
+#include "include_dir_constraint.hpp"
+#include "../util.hpp"
 
 
-#include <nonstd/optional.hpp>
-#include <string>
+std::string include_dir_constraint::description() const {
+	return "[name=]path";
+}
 
+std::string include_dir_constraint::shortID() const {
+	return "include directory";
+}
 
-bool file_exists(const char * path);
-bool directory_exists(const char * path);
+bool include_dir_constraint::check(const std::string & value) const {
+	auto equal_idx = value.find('=');
+	if(equal_idx == 0)
+		return false;
 
-std::string path_id(std::string p);
-std::string path_fname(std::string p);
-std::string url_id(const std::string & u);
-std::string url_fname(const std::string & u);
-nonstd::optional<std::string> get_ebook_title(const std::string & in);
-bool check_language(const char * lang);
-
-std::string & ltrim(std::string & s);
-std::string & rtrim(std::string & s);
-std::string & trim(std::string & s);
+	if(equal_idx == std::string::npos)
+		equal_idx = 0;
+	else
+		++equal_idx;
+	return directory_exists(value.c_str() + equal_idx);
+}

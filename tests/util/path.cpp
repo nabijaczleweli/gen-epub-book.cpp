@@ -26,12 +26,12 @@
 
 
 TEST_CASE("util::path_id()", "[util][path]") {
-	REQUIRE(path_id("simple/chapter_image.png") == "simple-chapter_image-png");
-	REQUIRE(path_id("simple/ctnt.html") == "simple-ctnt-html");
-	REQUIRE(path_id("../cover.png") == "cover-png");
-	REQUIRE(path_id("relative/path/../green_ass_dog.html") == "relative-path-green_ass_dog-html");
+	REQUIRE(path_id("simple/chapter_image.png") == "simple-chapter_image_png");
+	REQUIRE(path_id("simple/ctnt.html") == "simple-ctnt_html");
+	REQUIRE(path_id("../cover.png") == "cover_png");
+	REQUIRE(path_id("relative/path/../green_ass_dog.html") == "relative-path-green_ass_dog_html");
 	REQUIRE(path_id("./../relative_path_fuckery\\relative/../relative/path\\../../relative/path/dead_santa.html") ==
-	        "relative_path_fuckery-relative-relative-path-relative-path-dead_santa-html");
+	        "relative_path_fuckery-relative-relative-path-relative-path-dead_santa_html");
 	REQUIRE(path_id("../cover") == "cover");
 }
 

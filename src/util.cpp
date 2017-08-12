@@ -29,6 +29,8 @@
 #include <fstream>
 #include <regex>
 #include <sstream>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 
 bool file_exists(const char * path) {
@@ -38,10 +40,15 @@ bool file_exists(const char * path) {
 	return f;
 }
 
+bool directory_exists(const char * path) {
+	struct stat info;
+	return stat(path, &info) == 0 && info.st_mode & S_IFDIR;
+}
+
 std::string path_id(std::string p) {
 	auto path = path_fname(std::move(p));
 	for(std::size_t i; (i = path.find(".")) != std::string::npos;)
-		path.replace(i, 1, "-");
+		path.replace(i, 1, "_");
 	return path;
 }
 

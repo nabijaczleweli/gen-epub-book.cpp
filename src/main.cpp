@@ -43,7 +43,7 @@ int main(int argc, char ** argv) {
 
 	std::ifstream in(opts.in_file.value_or(""));
 	try {
-		book::from(opts.relative_root.c_str(), opts.in_file ? in : std::cin).write_to(opts.out_file.value_or(STDOUT).c_str());
+		book::from(opts.include_dirs, opts.in_file ? in : std::cin).write_to(opts.out_file.value_or(STDOUT).c_str());
 	} catch(const char * s) {
 		std::cerr << s << '\n';
 		return 2;

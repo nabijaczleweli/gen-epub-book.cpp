@@ -1349,7 +1349,7 @@ application/xcap-diff+xml			xdf
 # application/xcon-conference-info+xml
 # application/xcon-conference-info-diff+xml
 application/xenc+xml				xenc
-# application/xhtml+xml				xhtml xht html htm
+application/xhtml+xml				xhtml xht html htm
 # application/xhtml-voice+xml
 application/xml					xml xsl
 application/xml-dtd				dtd
@@ -1684,7 +1684,6 @@ text/csv					csv
 # text/example
 # text/fwdred
 # text/grammar-ref-list
-text/html					html htm
 # text/javascript
 # text/jcr-cnd
 # text/markdown

@@ -42,9 +42,9 @@ struct zipFile_deleter {
 };
 
 
-book book::from(const char * relroot, std::istream & descriptor) {
+book book::from(const include_order & incdirs, std::istream & descriptor) {
 	detail::book_parser p{};
-	p.relroot = relroot;
+	p.incdirs = &incdirs;
 	for(std::string line; std::getline(descriptor, line);)
 		p.take_line(line);
 
@@ -53,13 +53,13 @@ book book::from(const char * relroot, std::istream & descriptor) {
 	return b;
 }
 
-book book::from(const char * relroot, const std::string & descriptor) {
-	return book::from(relroot, descriptor.c_str());
+book book::from(const include_order & incdirs, const std::string & descriptor) {
+	return book::from(incdirs, descriptor.c_str());
 }
 
-book book::from(const char * relroot, const char * descriptor) {
+book book::from(const include_order & incdirs, const char * descriptor) {
 	detail::book_parser p{};
-	p.relroot = relroot;
+	p.incdirs = &incdirs;
 	for(const char *line_s = descriptor, *line_e = nullptr; (line_e = std::strchr(line_s, '\n'));) {
 		p.take_line(line_s, line_e - line_s);
 		line_s = line_e + 1;

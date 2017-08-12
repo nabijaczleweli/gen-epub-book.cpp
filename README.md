@@ -1,4 +1,4 @@
-# gen-epub-book.cpp [![Build Status](https://travis-ci.org/nabijaczleweli/gen-epub-book.cpp.svg?branch=master)](https://travis-ci.org/nabijaczleweli/gen-epub-book.cpp) [![Licence](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+# [gen-epub-book](https://nabijaczleweli.xyz/content/gen-epub-book).cpp [![Build Status](https://travis-ci.org/nabijaczleweli/gen-epub-book.cpp.svg?branch=master)](https://travis-ci.org/nabijaczleweli/gen-epub-book.cpp) [![Licence](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 Generate an ePub book from a simple plaintext descriptor.
 
 ## [Manpage](https://cdn.rawgit.com/nabijaczleweli/gen-epub-book/man/gen-epub-book.cpp.1.html)

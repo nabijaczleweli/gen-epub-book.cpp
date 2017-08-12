@@ -3,7 +3,7 @@ gen-epub-book.cpp(1) -- Generate an ePub book from a simple plaintext descriptor
 
 ## SYNOPSIS
 
-`gen-epub-book` IN_FILE OUT_FILE
+`gen-epub-book` IN_FILE OUT_FILE [OPTIONS]
 
 ## DESCRIPTION
 
@@ -22,6 +22,17 @@ Generate an ePub book from a simple plaintext descriptor.
     File to write the book to, parent directory must exist.
 
     Special case: '-' to write to stdout.
+
+  -I [name=]path
+  --include [name=]path
+
+    Additional root directories, optionally named.
+
+    If a file could not be found in the base directory, it will be looked for
+    in the directories from this list, in order of specification.
+
+    Details:
+    https://nabijaczleweli.xyz/content/gen-epub-book/programmer.html#features-include-dirs
 
 ## DESCRIPTOR FORMAT
 

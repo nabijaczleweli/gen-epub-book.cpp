@@ -21,23 +21,26 @@
 // DEALINGS IN THE SOFTWARE.
 
 
-#pragma once
-
-
-#include <nonstd/optional.hpp>
+#include "../test_util.hpp"
+#include "util.hpp"
+#include <catch.hpp>
+#include <fstream>
 #include <string>
 
 
-bool file_exists(const char * path);
-bool directory_exists(const char * path);
+using namespace std::literals;
 
-std::string path_id(std::string p);
-std::string path_fname(std::string p);
-std::string url_id(const std::string & u);
-std::string url_fname(const std::string & u);
-nonstd::optional<std::string> get_ebook_title(const std::string & in);
-bool check_language(const char * lang);
 
-std::string & ltrim(std::string & s);
-std::string & rtrim(std::string & s);
-std::string & trim(std::string & s);
+TEST_CASE("util::directory_exists() -- nonexistant", "[util]") {
+	const auto temp = temp_dir() + "/gen-epub-book.cpp/util/directory_exists/"s;
+	make_directory_recursive(temp.c_str());
+
+	REQUIRE_FALSE(directory_exists((temp + "nonexistant_dir").c_str()));
+}
+
+TEST_CASE("util::directory_exists() -- existant file", "[util]") {
+	const auto temp = temp_dir() + "/gen-epub-book.cpp/util/directory_exists/"s;
+	make_directory_recursive(temp.c_str());
+
+	REQUIRE(directory_exists(temp.c_str()));
+}

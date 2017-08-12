@@ -51,6 +51,8 @@ void detail::book_parser::take_line(const std::string & line) {
 	trim(key);
 	trim(value);
 
+	auto incdir = incdirs->find(value);
+
 	if(key.empty() || value.empty())
 		return;
 
@@ -62,20 +64,20 @@ void detail::book_parser::take_line(const std::string & line) {
 		else
 			name = value;
 	else if(key == "Content")
-		if(!file_exists((relroot + value).c_str()))
+		if(!incdir)
 			throw "Content file \"" + value + "\" nonexistant.";
 		else
-			content.emplace_back(content_element{path_id(value), path_fname(value), relroot + value, content_type::path});
+			content.emplace_back(content_element{incdir->ebook_id(value), incdir->ebook_filename(value), *incdir->resolve(value), content_type::path});
 	else if(key == "String-Content")
 		content.emplace_back(content_element{"string-content-" + std::to_string(id), "string-data-" + std::to_string(id) + ".html", value, content_type::string});
 	else if(key == "Image-Content")
-		if(!file_exists((relroot + value).c_str()))
+		if(!incdir)
 			throw "Image-Content file \"" + value + "\" nonexistant.";
 		else {
-			non_content.emplace_back(content_element{path_id(value), path_fname(value), relroot + value, content_type::path});
-			content.emplace_back(content_element{"image-content-" + std::to_string(id), "image-data-" + std::to_string(id) + ".html",
-			                                     "<center><img src=\""s + path_fname(value) + "\" alt=\"" + path_fname(value) + "\"></img></center>",
-			                                     content_type::string});
+			non_content.emplace_back(content_element{incdir->ebook_id(value), incdir->ebook_filename(value), *incdir->resolve(value), content_type::path});
+			content.emplace_back(content_element{
+			    "image-content-" + std::to_string(id), "image-data-" + std::to_string(id) + ".html",
+			    "<center><img src=\""s + incdir->ebook_filename(value) + "\" alt=\"" + incdir->ebook_filename(value) + "\"></img></center>", content_type::string});
 		}
 	else if(key == "Network-Image-Content") {
 		non_content.emplace_back(content_element{url_id(value), url_fname(value), value, content_type::network});
@@ -85,11 +87,11 @@ void detail::book_parser::take_line(const std::string & line) {
 	} else if(key == "Cover")
 		if(cover)
 			throw "[Network-]Cover key specified more than once.";
-		else if(!file_exists((relroot + value).c_str()))
+		else if(!incdir)
 			throw "Cover file \"" + value + "\" nonexistant.";
 		else {
-			non_content.emplace_back(content_element{"cover-" + path_id(value), path_fname(value), relroot + value, content_type::path});
-			cover = content_element{"cover-data", "cover-data.html", "<center><img src=\""s + path_fname(value) + "\" alt=\"cover\"></img></center>",
+			non_content.emplace_back(content_element{"cover-" + incdir->ebook_id(value), incdir->ebook_filename(value), *incdir->resolve(value), content_type::path});
+			cover = content_element{"cover-data", "cover-data.html", "<center><img src=\""s + incdir->ebook_filename(value) + "\" alt=\"cover\"></img></center>",
 			                        content_type::string};
 		}
 	else if(key == "Network-Cover")
@@ -101,10 +103,10 @@ void detail::book_parser::take_line(const std::string & line) {
 			                        content_type::string};
 		}
 	else if(key == "Include")
-		if(!file_exists((relroot + value).c_str()))
+		if(!incdir)
 			throw "Include file \"" + value + "\" nonexistant.";
 		else
-			non_content.emplace_back(content_element{path_id(value), path_fname(value), relroot + value, content_type::path});
+			non_content.emplace_back(content_element{incdir->ebook_id(value), incdir->ebook_filename(value), *incdir->resolve(value), content_type::path});
 	else if(key == "Network-Include")
 		non_content.emplace_back(content_element{url_id(value), url_fname(value), value, content_type::network});
 	else if(key == "Author")

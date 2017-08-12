@@ -24,20 +24,15 @@
 #pragma once
 
 
-#include <nonstd/optional.hpp>
 #include <string>
+#include <tclap/Constraint.h>
 
 
-bool file_exists(const char * path);
-bool directory_exists(const char * path);
+class include_dir_constraint : public TCLAP::Constraint<std::string> {
+public:
+	virtual std::string description() const override;
+	virtual std::string shortID() const override;
+	virtual bool check(const std::string & value) const override;
 
-std::string path_id(std::string p);
-std::string path_fname(std::string p);
-std::string url_id(const std::string & u);
-std::string url_fname(const std::string & u);
-nonstd::optional<std::string> get_ebook_title(const std::string & in);
-bool check_language(const char * lang);
-
-std::string & ltrim(std::string & s);
-std::string & rtrim(std::string & s);
-std::string & trim(std::string & s);
+	virtual ~include_dir_constraint() = default;
+};

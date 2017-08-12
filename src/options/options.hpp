@@ -23,7 +23,9 @@
 #pragma once
 
 
+#include "../features/include.hpp"
 #include <nonstd/optional.hpp>
+#include <ostream>
 #include <string>
 #include <tuple>
 
@@ -31,10 +33,11 @@
 struct options {
 	nonstd::optional<std::string> in_file;
 	nonstd::optional<std::string> out_file;
-	std::string relative_root;
+	include_order include_dirs;
 
 
 	static std::tuple<options, int, std::string> parse(int argc, const char * const * argv);
 };
 
+std::ostream & operator<<(std::ostream & to, const options & of);
 bool operator==(const options & lhs, const options & rhs);

@@ -40,63 +40,66 @@ static std::string book_str();
 static void check_book(const book & b);
 
 
+static const include_order examples_order{{{"examples/"s}, {"rel"s, "examples/relative_path_fuckery\\relative/path/"s}}};
+
+
 TEST_CASE("book::from(C string iterator)", "[book]") {
 	const auto lines = book_lines<const char *>();
-	check_book(book::from("examples/", lines.begin(), lines.end()));
+	check_book(book::from(examples_order, lines.begin(), lines.end()));
 }
 
 TEST_CASE("book::from(std::string iterator)", "[book]") {
 	const auto lines = book_lines<std::string>();
-	check_book(book::from("examples/", lines.begin(), lines.end()));
+	check_book(book::from(examples_order, lines.begin(), lines.end()));
 }
 
 TEST_CASE("book::from(file stream)", "[book]") {
 	std::ifstream in("examples/everything.epupp");
-	check_book(book::from("examples/", in));
+	check_book(book::from(examples_order, in));
 }
 
 TEST_CASE("book::from(std::string)", "[book]") {
-	check_book(book::from("examples/", book_str()));
+	check_book(book::from(examples_order, book_str()));
 }
 
 TEST_CASE("book::from(C string)", "[book]") {
-	check_book(book::from("examples/", book_str().c_str()));
+	check_book(book::from(examples_order, book_str().c_str()));
 }
 
 TEST_CASE("book::from() -- double", "[book]") {
-	REQUIRE_THROWS_WITH(book::from("examples/", "Name: l1\nName: l2\n"), "Name key specified more than once.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Author: l1\nAuthor: l2\n"), "Author key specified more than once.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Date: 2017-02-08T15:30:18+01:00\nDate: 2017-02-08T15:30:18+02:00\n"), "Date key specified more than once.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Language: en\nLanguage: pl\n"), "Language key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Name: l1\nName: l2\n"), "Name key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Author: l1\nAuthor: l2\n"), "Author key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Date: 2017-02-08T15:30:18+01:00\nDate: 2017-02-08T15:30:18+02:00\n"), "Date key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Language: en\nLanguage: pl\n"), "Language key specified more than once.");
 
-	REQUIRE_THROWS_WITH(book::from("examples/", "Cover: cover.png\nCover: cover.png\n"), "[Network-]Cover key specified more than once.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Network-Cover: l1\nCover: cover.png\n"), "[Network-]Cover key specified more than once.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Cover: cover.png\nNetwork-Cover: l2\n"), "[Network-]Cover key specified more than once.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Network-Cover: l1\nNetwork-Cover: l2\n"), "[Network-]Cover key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Cover: cover.png\nCover: cover.png\n"), "[Network-]Cover key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Network-Cover: l1\nCover: cover.png\n"), "[Network-]Cover key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Cover: cover.png\nNetwork-Cover: l2\n"), "[Network-]Cover key specified more than once.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Network-Cover: l1\nNetwork-Cover: l2\n"), "[Network-]Cover key specified more than once.");
 }
 
 TEST_CASE("book::from() -- incorrect", "[book]") {
-	REQUIRE_THROWS_WITH(book::from("examples/", "Content: simple/ctnt.htm\n"), "Content file \"simple/ctnt.htm\" nonexistant.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Image-Content: simple/chapter_image.jpg\n"), "Image-Content file \"simple/chapter_image.jpg\" nonexistant.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Cover: cover.jpg\n"), "Cover file \"cover.jpg\" nonexistant.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Date: 2017-02-08T15:30:18+01:0\n"), "Date malformed.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Date: 2017-02-08T15:30:18\n"), "Date malformed.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Date: 2017-02-08T1:30:18\n"), "Date malformed.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Date: Sun Feb 19 14:33:26 Central European Standard Time 2017\n"), "Date malformed.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Date: Sun, 19 Feb 2017 14:33:40 Central European Standard Time\n"), "Date malformed.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Date: yesterday\n"), "Date malformed.");
-	REQUIRE_THROWS_WITH(book::from("examples/", "Language: l1\n"), "Language l1 not valid BCP47.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Content: simple/ctnt.htm\n"), "Content file \"simple/ctnt.htm\" nonexistant.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Image-Content: simple/chapter_image.jpg\n"), "Image-Content file \"simple/chapter_image.jpg\" nonexistant.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Cover: cover.jpg\n"), "Cover file \"cover.jpg\" nonexistant.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Date: 2017-02-08T15:30:18+01:0\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Date: 2017-02-08T15:30:18\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Date: 2017-02-08T1:30:18\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Date: Sun Feb 19 14:33:26 Central European Standard Time 2017\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Date: Sun, 19 Feb 2017 14:33:40 Central European Standard Time\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Date: yesterday\n"), "Date malformed.");
+	REQUIRE_THROWS_WITH(book::from(examples_order, "Language: l1\n"), "Language l1 not valid BCP47.");
 }
 
 TEST_CASE("book::from() -- missing", "[book]") {
 	for(auto key : {"Name", "Author", "Date", "Language"}) {
 		const auto lines = book_lines_without(key);
-		REQUIRE_THROWS_WITH(book::from("examples/", lines.begin(), lines.end()), "Required key "s + key + " not specified");
+		REQUIRE_THROWS_WITH(book::from(examples_order, lines.begin(), lines.end()), "Required key "s + key + " not specified");
 	}
 }
 
 TEST_CASE("book::operator==()", "[book]") {
-	REQUIRE(book::from("examples/", book_str()) == book::from("examples/", book_str()));
+	REQUIRE(book::from(examples_order, book_str()) == book::from(examples_order, book_str()));
 }
 
 
@@ -108,6 +111,7 @@ static std::vector<T> book_lines() {
 	    "Content \t: simple/ctnt.html \t\t  ",                                                                                           //
 	    "String-Content: <strong>SEIZE THE MEANS OF PRODUCTION!</strong>",                                                               //
 	    "Image-Content: simple/chapter_image.png",                                                                                       //
+	    "Image-Content: not_dead_yet.png",                                                                                               //
 	    "Network-Image-Content: https://cdn.rawgit.com/nabijaczleweli/nabijaczleweli.github.io/dev/src/writing_prompts/slim_shady.png",  //
 	    "",                                                                                                                              //
 	    "Network-Cover: http://i.imgur.com/ViQ2WED.jpg",                                                                                 //

@@ -23,6 +23,7 @@
 #pragma once
 
 
+#include "features/include.hpp"
 #include <ctime>
 #include <istream>
 #include <nonstd/optional.hpp>
@@ -37,6 +38,7 @@ namespace detail {
 	struct book_parser;
 }
 
+
 enum class content_type { path, string, network };
 
 struct content_element {
@@ -45,6 +47,7 @@ struct content_element {
 	std::string data;
 	content_type tp;
 };
+
 
 class book {
 private:
@@ -68,10 +71,10 @@ public:
 
 
 	template <class Iter>
-	static book from(const char * relroot, Iter lines_start, Iter lines_end);
-	static book from(const char * relroot, std::istream & descriptor);
-	static book from(const char * relroot, const std::string & descriptor);
-	static book from(const char * relroot, const char * descriptor);
+	static book from(const include_order & incdirs, Iter lines_start, Iter lines_end);
+	static book from(const include_order & incdirs, std::istream & descriptor);
+	static book from(const include_order & incdirs, const std::string & descriptor);
+	static book from(const include_order & incdirs, const char * descriptor);
 
 	void write_to(const char * path);
 };
@@ -79,10 +82,11 @@ public:
 bool operator==(const content_element & lhs, const content_element & rhs);
 bool operator==(const book & lhs, const book & rhs);
 
+
 namespace detail {
 	struct book_parser {
 		unsigned int id;
-		const char * relroot;
+		const include_order * incdirs;
 		nonstd::optional<std::string> name;
 		nonstd::optional<content_element> cover;
 		nonstd::optional<std::string> author;
@@ -100,9 +104,9 @@ namespace detail {
 
 
 template <class Iter>
-book book::from(const char * relroot, Iter lines_start, Iter lines_end) {
+book book::from(const include_order & incdirs, Iter lines_start, Iter lines_end) {
 	detail::book_parser p{};
-	p.relroot = relroot;
+	p.incdirs = &incdirs;
 	while(lines_start != lines_end)
 		p.take_line(*lines_start++);
 
