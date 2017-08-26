@@ -65,8 +65,10 @@ std::string path_fname(std::string p) {
 }
 
 std::string url_id(const std::string & u) {
-	const auto post_slash_idx = u.find_last_of('/') + 1;
-	return u.substr(post_slash_idx, u.find_last_of('.') - post_slash_idx);
+	auto path = url_fname(u);
+	for(std::size_t i; (i = path.find(".")) != std::string::npos;)
+		path.replace(i, 1, "_");
+	return path;
 }
 
 std::string url_fname(const std::string & u) {

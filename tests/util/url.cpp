@@ -26,11 +26,11 @@
 
 
 TEST_CASE("util::url_id()", "[util][url]") {
-	REQUIRE(url_id("http://i.imgur.com/ViQ2WED.jpg") == "ViQ2WED");
-	REQUIRE(url_id("https://cdn.rawgit.com/nabijaczleweli/nabijaczleweli.github.io/dev/src/writing_prompts/slim_shady.png") == "slim_shady");
-	REQUIRE(url_id("https://img09.deviantart.net/e6c8/i/2015/138/8/0/the_pursuer_by_artsed-d7lbiua.jpg") == "the_pursuer_by_artsed-d7lbiua");
+	REQUIRE(url_id("http://i.imgur.com/ViQ2WED.jpg") == "ViQ2WED_jpg");
+	REQUIRE(url_id("https://cdn.rawgit.com/nabijaczleweli/nabijaczleweli.github.io/dev/src/writing_prompts/slim_shady.png") == "slim_shady_png");
+	REQUIRE(url_id("https://img09.deviantart.net/e6c8/i/2015/138/8/0/the_pursuer_by_artsed-d7lbiua.jpg") == "the_pursuer_by_artsed-d7lbiua_jpg");
 	REQUIRE(url_id("https://i.imgur.com/") == "");
-	REQUIRE(url_id("https://i.imgur.com/.png") == "");
+	REQUIRE(url_id("https://i.imgur.com/.png") == "_png");
 }
 
 TEST_CASE("util::url_fname()", "[util][url]") {

@@ -150,11 +150,12 @@ void book::write_content_table(void * epub) {
 		specified_ids.emplace(elem.id);
 
 		const auto dot_id = elem.filename.find_last_of('.');
-		if(dot_id == std::string::npos || dot_id == elem.filename.size() - 1)
-			throw "File \"" + elem.filename + "\" doesn't have an extension.";
-		const auto mime_itr = mime_types.find(elem.filename.c_str() + dot_id + 1);
-		if(mime_itr == mime_types.end())
-			throw "No MIME type for extension " + std::string(elem.filename.c_str() + dot_id + 1) + ".";
+		auto mime_itr = mime_types.find("text");
+		if(dot_id != std::string::npos && dot_id != elem.filename.size() - 1) {
+			mime_itr = mime_types.find(elem.filename.c_str() + dot_id + 1);
+			if(mime_itr == mime_types.end())
+				throw "No MIME type for extension " + std::string(elem.filename.c_str() + dot_id + 1) + ".";
+		}
 
 		zipWriteInFileInZip(epub, "    <item href=\"", std::strlen("    <item href=\""));
 		zipWriteInFileInZip(epub, elem.filename.c_str(), elem.filename.size());
