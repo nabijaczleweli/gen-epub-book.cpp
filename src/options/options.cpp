@@ -26,6 +26,7 @@
 #include <iostream>
 #include <tclap/CmdLine.h>
 #include <tclap/ValueArg.h>
+#include <tclap/SwitchArg.h>
 
 
 using namespace std::literals;
@@ -44,6 +45,7 @@ std::tuple<options, int, std::string> options::parse(int argc, const char * cons
 		TCLAP::UnlabeledValueArg<std::string> in_file("infile", "File to parse or '-' for stdin", true, "", &input_file_constraint, command_line);
 		TCLAP::UnlabeledValueArg<std::string> out_file("outfile", "File to write the book to or '-' for stdout", true, "", "output file or '-'", command_line);
 		TCLAP::MultiArg<std::string> incdirs("I", "include", "Add an include directory", false, &incdirs_constraint, command_line);
+		TCLAP::SwitchArg free_date("D", "free-date", "Parse more datetime formats", command_line);
 
 		command_line.setExceptionHandling(false);
 		command_line.parse(argc, argv);
@@ -77,6 +79,8 @@ std::tuple<options, int, std::string> options::parse(int argc, const char * cons
 			else
 				ret.include_dirs.order.emplace_back(incdir.substr(0, equal_idx), incdir.c_str() + equal_idx + 1);
 		}
+
+		ret.free_date = free_date.getValue();
 	} catch(const TCLAP::ArgException & e) {
 		auto arg_id = e.argId();
 		if(arg_id == " ")

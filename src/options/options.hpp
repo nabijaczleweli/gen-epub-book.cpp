@@ -34,6 +34,7 @@ struct options {
 	nonstd::optional<std::string> in_file;
 	nonstd::optional<std::string> out_file;
 	include_order include_dirs;
+	bool free_date;
 
 
 	static std::tuple<options, int, std::string> parse(int argc, const char * const * argv);

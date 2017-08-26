@@ -20,36 +20,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-#include "book.hpp"
-#include "options/options.hpp"
-#include <fstream>
-#include <iostream>
+#pragma once
 
 
-#ifdef _WIN32
-#define STDOUT "CON"
-#else
-#define STDOUT "/dev/stdout"
-#endif
+#include <ctime>
+#include <nonstd/optional.hpp>
+#include <string>
 
 
-int main(int argc, char ** argv) {
-	const auto opts_r = options::parse(argc, argv);
-	if(std::get<1>(opts_r)) {
-		std::cerr << std::get<2>(opts_r) << '\n';
-		return std::get<1>(opts_r);
-	}
-	const auto opts = std::move(std::get<0>(opts_r));
-	std::cerr << "incdirs=" << opts.include_dirs << "; free_date=" << opts.free_date << "\n";
+nonstd::optional<std::pair<std::tm, std::string>> parse_datetime(const std::string & date_s, bool free_date);
 
-	std::ifstream in(opts.in_file.value_or(""));
-	try {
-		book::from(opts.include_dirs, opts.free_date, opts.in_file ? in : std::cin).write_to(opts.out_file.value_or(STDOUT).c_str());
-	} catch(const char * s) {
-		std::cerr << s << '\n';
-		return 2;
-	} catch(const std::string & s) {
-		std::cerr << s << '\n';
-		return 2;
-	}
-}
+nonstd::optional<std::pair<std::tm, std::string>> parse_rfc3339(const std::string & date_s);
+nonstd::optional<std::pair<std::tm, std::string>> parse_rfc2822(const std::string & date_s);

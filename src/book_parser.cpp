@@ -21,6 +21,7 @@
 
 
 #include "book.hpp"
+#include "features/date.hpp"
 #include "util.hpp"
 #include <algorithm>
 #include <cctype>
@@ -118,17 +119,11 @@ void detail::book_parser::take_line(const std::string & line) {
 		if(date)
 			throw "Date key specified more than once.";
 		else {
-			std::tm time{};
-			char tz[6];
-
-			std::istringstream ss(value);
-			ss >> std::get_time(&time, "%Y-%m-%dT%H:%M:%S") >> tz;
-
-			if(ss.fail() || value.size() != 25 ||
-			   ((tz[0] != '-' && tz[0] != '+') || !isdigit(tz[1]) || !isdigit(tz[2]) || (tz[3] != ':') || !isdigit(tz[4]) || !isdigit(tz[5])))
-				throw "Date malformed.";
+			auto dt = parse_datetime(value, free_date);
+			if(dt)
+				date = std::move(*dt);
 			else
-				date = std::make_pair(time, std::string(tz, 6));
+				throw "Date malformed.";
 		}
 	} else if(key == "Language") {
 		if(language)

@@ -69,7 +69,7 @@ TEST_CASE("options::parse() -- incorrect args", "[options]") {
 
 	{
 		const char * args[] = {"gen-epub-book.cpp tests", infile.c_str(), ""};
-		REQUIRE(options::parse(3, args) == std::make_tuple(options{{infile}, {}, temp_order}, 1, "Output file can't be empty"s));
+		REQUIRE(options::parse(3, args) == std::make_tuple(options{{infile}, {}, temp_order, false}, 1, "Output file can't be empty"s));
 	}
 }
 
@@ -89,26 +89,26 @@ TEST_CASE("options::parse() -- correct", "[options]") {
 
 	{
 		const char * args[] = {"gen-epub-book.cpp tests", infile.c_str(), outfile.c_str()};
-		REQUIRE(options::parse(3, args) == std::make_tuple(options{{infile}, {outfile}, temp_order}, 0, ""));
+		REQUIRE(options::parse(3, args) == std::make_tuple(options{{infile}, {outfile}, temp_order, false}, 0, ""));
 	}
 
 	{
 		const char * args[] = {"gen-epub-book.cpp tests", "LICENSE", outfile.c_str()};
-		REQUIRE(options::parse(3, args) == std::make_tuple(options{{"LICENSE"}, {outfile}, dot_order}, 0, ""));
+		REQUIRE(options::parse(3, args) == std::make_tuple(options{{"LICENSE"}, {outfile}, dot_order, false}, 0, ""));
 	}
 
 	{
 		const char * args[] = {"gen-epub-book.cpp tests", "-", outfile.c_str()};
-		REQUIRE(options::parse(3, args) == std::make_tuple(options{{}, {outfile}, dot_order}, 0, ""));
+		REQUIRE(options::parse(3, args) == std::make_tuple(options{{}, {outfile}, dot_order, false}, 0, ""));
 	}
 
 	{
 		const char * args[] = {"gen-epub-book.cpp tests", infile.c_str(), "-"};
-		REQUIRE(options::parse(3, args) == std::make_tuple(options{{infile}, {}, temp_order}, 0, ""));
+		REQUIRE(options::parse(3, args) == std::make_tuple(options{{infile}, {}, temp_order, false}, 0, ""));
 	}
 
 	{
 		const char * args[] = {"gen-epub-book.cpp tests", "-", "-"};
-		REQUIRE(options::parse(3, args) == std::make_tuple(options{{}, {}, dot_order}, 0, ""));
+		REQUIRE(options::parse(3, args) == std::make_tuple(options{{}, {}, dot_order, false}, 0, ""));
 	}
 }

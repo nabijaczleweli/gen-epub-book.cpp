@@ -71,10 +71,10 @@ public:
 
 
 	template <class Iter>
-	static book from(const include_order & incdirs, Iter lines_start, Iter lines_end);
-	static book from(const include_order & incdirs, std::istream & descriptor);
-	static book from(const include_order & incdirs, const std::string & descriptor);
-	static book from(const include_order & incdirs, const char * descriptor);
+	static book from(const include_order & incdirs, bool free_date, Iter lines_start, Iter lines_end);
+	static book from(const include_order & incdirs, bool free_date, std::istream & descriptor);
+	static book from(const include_order & incdirs, bool free_date, const std::string & descriptor);
+	static book from(const include_order & incdirs, bool free_date, const char * descriptor);
 
 	void write_to(const char * path);
 };
@@ -87,6 +87,8 @@ namespace detail {
 	struct book_parser {
 		unsigned int id;
 		const include_order * incdirs;
+		bool free_date;
+
 		nonstd::optional<std::string> name;
 		nonstd::optional<content_element> cover;
 		nonstd::optional<std::string> author;
@@ -94,6 +96,7 @@ namespace detail {
 		nonstd::optional<std::string> language;
 		std::vector<content_element> content;
 		std::vector<content_element> non_content;
+
 
 		void take_line(const char * line);
 		void take_line(const std::string & line);
@@ -104,9 +107,11 @@ namespace detail {
 
 
 template <class Iter>
-book book::from(const include_order & incdirs, Iter lines_start, Iter lines_end) {
+book book::from(const include_order & incdirs, bool free_date, Iter lines_start, Iter lines_end) {
 	detail::book_parser p{};
-	p.incdirs = &incdirs;
+	p.incdirs   = &incdirs;
+	p.free_date = free_date;
+
 	while(lines_start != lines_end)
 		p.take_line(*lines_start++);
 

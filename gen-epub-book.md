@@ -34,6 +34,12 @@ Generate an ePub book from a simple plaintext descriptor.
     Details:
     https://nabijaczleweli.xyz/content/gen-epub-book/programmer.html#features-include-dirs
 
+  -D --free-date
+
+    Parse more datetime formats.
+
+    See FREE DATE FORMAT FEATURE for details.
+
 ## DESCRIPTOR FORMAT
 
 The descriptor consists of multiple lines in the format *"Key: Value"*, unknown
@@ -140,6 +146,16 @@ represented by the document containing this entry.
 
 Optional.
 
+## FREE DATE FORMAT FEATURE
+
+With the -D/--free-date flag, you can enable the free date format feature:
+&lt;<https://nabijaczleweli.xyz/content/gen-epub-book/programmer.html#features-free-date-format>&gt;.
+
+The supported formats therewith are therefore:
+
+  * RFC3339 (e.g. "2017-02-08T15:30:18+01:00"),
+  * RFC2822 (e.g. "Wed, 08 Feb 2017 15:30:18 +0100").
+
 ## AUTHOR
 
 Written by nabijaczleweli &lt;<nabijaczleweli@gmail.com>&gt;
@@ -150,4 +166,5 @@ Written by nabijaczleweli &lt;<nabijaczleweli@gmail.com>&gt;
 
 ## SEE ALSO
 
-&lt;<https://github.com/nabijaczleweli/gen-epub-book.cpp>&gt;
+&lt;<https://github.com/nabijaczleweli/gen-epub-book.cpp>&gt;<br />
+&lt;<https://nabijaczleweli.xyz/content/gen-epub-book>&gt;

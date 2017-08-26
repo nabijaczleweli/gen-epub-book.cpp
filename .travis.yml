@@ -87,7 +87,7 @@ script:
   - if [ "$LANGUAGE" == "Ruby" ]; then
       mkdir man; pushd man;
       cp ../gen-epub-book.md gen-epub-book.cpp.md;
-      ronn --organization="gen-epub-book.cpp developecpp" gen-epub-book.cpp.md;
+      ronn --organization="gen-epub-book.cpp developers" gen-epub-book.cpp.md;
       mv "gen-epub-book.1.html" "gen-epub-book.cpp.1.html";
       mv "gen-epub-book.1" "gen-epub-book.cpp.1";
       popd;
