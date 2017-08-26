@@ -101,10 +101,11 @@ void book::write_to(const char * path) {
 	write_content_table(epub.get());
 	write_table_of_contents(epub.get());
 
+	std::vector<std::string> written;
 	if(cover)
-		write_element(epub.get(), *cover);
-	std::for_each(content.begin(), content.end(), [&](auto && ctnt) { this->write_element(epub.get(), ctnt); });
-	std::for_each(non_content.begin(), non_content.end(), [&](auto && nctnt) { this->write_element(epub.get(), nctnt); });
+		write_element(epub.get(), *cover, written);
+	std::for_each(content.begin(), content.end(), [&](auto && ctnt) { this->write_element(epub.get(), ctnt, written); });
+	std::for_each(non_content.begin(), non_content.end(), [&](auto && nctnt) { this->write_element(epub.get(), nctnt, written); });
 }
 
 void book::write_content_table(void * epub) {
@@ -263,7 +264,12 @@ void book::write_table_of_contents(void * epub) {
 	zipCloseFileInZip(epub);
 }
 
-void book::write_element(void * epub, const content_element & elem) {
+void book::write_element(void * epub, const content_element & elem, std::vector<std::string> & written) {
+	if(std::find(written.begin(), written.end(), elem.filename) == written.end())
+		written.emplace_back(elem.filename);
+	else
+		return;
+
 	zipOpenNewFileInZip(epub, elem.filename.c_str(), nullptr, nullptr, 0, nullptr, 0, elem.id.c_str(), Z_DEFLATED, Z_BEST_COMPRESSION);
 
 	switch(elem.tp) {

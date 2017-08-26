@@ -40,7 +40,6 @@ int main(int argc, char ** argv) {
 		return std::get<1>(opts_r);
 	}
 	const auto opts = std::move(std::get<0>(opts_r));
-	std::cerr << "incdirs=" << opts.include_dirs << "; free_date=" << opts.free_date << "\n";
 
 	std::ifstream in(opts.in_file.value_or(""));
 	try {

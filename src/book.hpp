@@ -60,7 +60,7 @@ private:
 
 	void write_content_table(void * epub);
 	void write_table_of_contents(void * epub);
-	void write_element(void * epub, const content_element & elem);
+	void write_element(void * epub, const content_element & elem, std::vector<std::string>& written);
 
 public:
 	std::string name;
