@@ -25,7 +25,7 @@ include configMakefile
 
 LDAR := $(PIC) $(foreach l,ext ext/cpr/lib,-L$(OUTDIR)$(l)) $(foreach l,cpr curl minizip z uuid++,-l$(l))
 VERAR := $(foreach l,GEN_EPUB_BOOK_CPP CPR MINIZIP TCLAP UUID,-D$(l)_VERSION='$($(l)_VERSION)')
-INCAR := $(foreach l,$(foreach l,$(foreach l,Catch cpr minizip optional-lite TCLAP,$(l)/include),ext/$(l)) $(OUTDIR)ext/uuid/include,-isystem$(l))
+INCAR := $(foreach l,$(foreach l,$(foreach l,cpr minizip optional-lite TCLAP,$(l)/include) Catch/single_include,ext/$(l)) $(OUTDIR)ext/uuid/include,-isystem$(l))
 BOOK_SOURCES := $(sort $(wildcard examples/*.epupp examples/**/*.epupp examples/**/**/*.epupp examples/**/**/**/*.epupp))
 TEST_SOURCES := $(sort $(wildcard tests/*.cpp tests/**/*.cpp tests/**/**/*.cpp tests/**/**/**/*.cpp))
 SOURCES := $(sort $(wildcard src/*.cpp src/**/*.cpp src/**/**/*.cpp src/**/**/**/*.cpp))
