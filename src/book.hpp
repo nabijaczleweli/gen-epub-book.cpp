@@ -41,11 +41,15 @@ namespace detail {
 
 enum class content_type { path, string, network };
 
+struct content_data {
+	std::string value;
+	content_type type;
+};
+
 struct content_element {
 	std::string id;
 	std::string filename;
-	std::string data;
-	content_type tp;
+	content_data data;
 };
 
 
@@ -60,7 +64,8 @@ private:
 
 	void write_content_table(void * epub);
 	void write_table_of_contents(void * epub);
-	void write_element(void * epub, const content_element & elem, std::vector<std::string>& written);
+	void write_element(void * epub, const content_element & elem, std::vector<std::string> & written);
+	void write_element_data(void * epub, const content_data & elem, bool wrap_strings = true);
 
 public:
 	std::string name;
@@ -68,6 +73,7 @@ public:
 	std::string author;
 	std::pair<std::tm, std::string> date;
 	std::string language;
+	nonstd::optional<content_data> description;
 
 
 	template <class Iter>
@@ -80,6 +86,7 @@ public:
 };
 
 bool operator==(const content_element & lhs, const content_element & rhs);
+bool operator==(const content_data & lhs, const content_data & rhs);
 bool operator==(const book & lhs, const book & rhs);
 
 
@@ -94,6 +101,7 @@ namespace detail {
 		nonstd::optional<std::string> author;
 		nonstd::optional<std::pair<std::tm, std::string>> date;
 		nonstd::optional<std::string> language;
+		nonstd::optional<content_data> description;
 		std::vector<content_element> content;
 		std::vector<content_element> non_content;
 
@@ -103,7 +111,7 @@ namespace detail {
 		void take_line(const char * line, std::size_t len);
 		void construct(book & b);
 	};
-}
+}  // namespace detail
 
 
 template <class Iter>

@@ -75,7 +75,11 @@ book book::from(const include_order & incdirs, bool free_date, const char * desc
 }
 
 bool operator==(const content_element & lhs, const content_element & rhs) {
-	return lhs.id == rhs.id && lhs.filename == rhs.filename && lhs.data == rhs.data && lhs.tp == rhs.tp;
+	return lhs.id == rhs.id && lhs.filename == rhs.filename && lhs.data == rhs.data;
+}
+
+bool operator==(const content_data & lhs, const content_data & rhs) {
+	return lhs.type == rhs.type && lhs.value == rhs.value;
 }
 
 bool operator==(const book & lhs, const book & rhs) {
@@ -84,7 +88,7 @@ bool operator==(const book & lhs, const book & rhs) {
 	       lhs.date.first.tm_mday == rhs.date.first.tm_mday && lhs.date.first.tm_mon == rhs.date.first.tm_mon &&
 	       lhs.date.first.tm_year == rhs.date.first.tm_year && lhs.date.first.tm_wday == rhs.date.first.tm_wday &&
 	       lhs.date.first.tm_yday == rhs.date.first.tm_yday && lhs.date.first.tm_isdst == rhs.date.first.tm_isdst && lhs.date.second == rhs.date.second &&
-	       lhs.language == rhs.language;
+	       lhs.language == rhs.language && lhs.description == rhs.description;
 }
 
 void book::write_to(const char * path) {
@@ -133,6 +137,12 @@ void book::write_content_table(void * epub) {
 	zipWriteInFileInZip(epub, date.second.c_str(), date.second.size());
 	zipWriteInFileInZip(epub, "</dc:date>\n", std::strlen("</dc:date>\n"));
 
+	if(description) {
+		zipWriteInFileInZip(epub, "    <dc:description>\n", std::strlen("    <dc:description>\n"));
+		write_element_data(epub, *description, false);
+		zipWriteInFileInZip(epub, "    </dc:description>\n", std::strlen("    </dc:description>\n"));
+	}
+
 	if(cover) {
 		zipWriteInFileInZip(epub, "    <meta name=\"cover\" content=\"", std::strlen("    <meta name=\"cover\" content=\""));
 		zipWriteInFileInZip(epub, cover->id.c_str(), cover->id.size());
@@ -150,7 +160,7 @@ void book::write_content_table(void * epub) {
 		specified_ids.emplace(elem.id);
 
 		const auto dot_id = elem.filename.find_last_of('.');
-		auto mime_itr = mime_types.find("text");
+		auto mime_itr     = mime_types.find("text");
 		if(dot_id != std::string::npos && dot_id != elem.filename.size() - 1) {
 			mime_itr = mime_types.find(elem.filename.c_str() + dot_id + 1);
 			if(mime_itr == mime_types.end())
@@ -229,10 +239,10 @@ void book::write_table_of_contents(void * epub) {
 
 	auto nav_map_id = 0u;
 	for(auto && ctnt : content) {
-		if(ctnt.tp != content_type::path)
+		if(ctnt.data.type != content_type::path)
 			continue;
 
-		const auto title = get_ebook_title(ctnt.data);
+		const auto title = get_ebook_title(ctnt.data.value);
 		if(!title)
 			continue;
 
@@ -272,15 +282,19 @@ void book::write_element(void * epub, const content_element & elem, std::vector<
 		return;
 
 	zipOpenNewFileInZip(epub, elem.filename.c_str(), nullptr, nullptr, 0, nullptr, 0, elem.id.c_str(), Z_DEFLATED, Z_BEST_COMPRESSION);
+	write_element_data(epub, elem.data);
+	zipCloseFileInZip(epub);
+}
 
-	switch(elem.tp) {
+void book::write_element_data(void * epub, const content_data & data, bool wrap_strings) {
+	switch(data.type) {
 		case content_type::path: {
 			char buf[1024];
-			std::ifstream data(elem.data, std::ios::binary);
+			std::ifstream in_data(data.value, std::ios::binary);
 
 			for(;;) {
-				data.read(buf, sizeof(buf));
-				const auto read = data.gcount();
+				in_data.read(buf, sizeof(buf));
+				const auto read = in_data.gcount();
 
 				zipWriteInFileInZip(epub, buf, read);
 				if(read != sizeof(buf))
@@ -288,15 +302,15 @@ void book::write_element(void * epub, const content_element & elem, std::vector<
 			}
 		} break;
 		case content_type::string:
-			zipWriteInFileInZip(epub, assets_string_data_html_head, std::strlen(assets_string_data_html_head));
-			zipWriteInFileInZip(epub, elem.data.c_str(), elem.data.size());
-			zipWriteInFileInZip(epub, assets_string_data_html_tail, std::strlen(assets_string_data_html_tail));
+			if(wrap_strings)
+				zipWriteInFileInZip(epub, assets_string_data_html_head, std::strlen(assets_string_data_html_head));
+			zipWriteInFileInZip(epub, data.value.c_str(), data.value.size());
+			if(wrap_strings)
+				zipWriteInFileInZip(epub, assets_string_data_html_tail, std::strlen(assets_string_data_html_tail));
 			break;
 		case content_type::network: {
-			const auto data = cpr::Get(cpr::Url(elem.data)).text;
-			zipWriteInFileInZip(epub, data.c_str(), data.size());
+			const auto in_data = cpr::Get(cpr::Url(data.value)).text;
+			zipWriteInFileInZip(epub, in_data.c_str(), in_data.size());
 		} break;
 	}
-
-	zipCloseFileInZip(epub);
 }

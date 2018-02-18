@@ -115,6 +115,23 @@ void detail::book_parser::take_line(const std::string & line) {
 			throw "Author key specified more than once.";
 		else
 			author = value;
+	else if(key == "Description")
+		if(description)
+			throw "[<String|Network>-]Description key specified more than once.";
+		else if(!incdir)
+			throw "Description file \"" + value + "\" nonexistant.";
+		else
+			description = content_data{*incdir->resolve(value), content_type::path};
+	else if(key == "String-Description")
+		if(description)
+			throw "[<String|Network>-]Description key specified more than once.";
+		else
+			description = content_data{value, content_type::string};
+	else if(key == "Network-Description")
+		if(description)
+			throw "[<String|Network>-]Description key specified more than once.";
+		else
+			description = content_data{value, content_type::network};
 	else if(key == "Date") {
 		if(date)
 			throw "Date key specified more than once.";
@@ -148,6 +165,7 @@ void detail::book_parser::construct(book & b) {
 	b.author      = try_option(std::move(author), "Author");
 	b.date        = try_option(std::move(date), "Date");
 	b.language    = try_option(std::move(language), "Language");
+	b.description = std::move(description);
 }
 
 
