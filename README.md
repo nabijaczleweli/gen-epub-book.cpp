@@ -1,7 +1,7 @@
 # [gen-epub-book](https://nabijaczleweli.xyz/content/gen-epub-book).cpp [![Build Status](https://travis-ci.org/nabijaczleweli/gen-epub-book.cpp.svg?branch=master)](https://travis-ci.org/nabijaczleweli/gen-epub-book.cpp) [![Licence](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 Generate an ePub book from a simple plaintext descriptor.
 
-## [Manpage](https://cdn.rawgit.com/nabijaczleweli/gen-epub-book/man/gen-epub-book.cpp.1.html)
+## [Manpage](https://rawcdn.githack.com/nabijaczleweli/gen-epub-book/man/gen-epub-book.cpp.1.html)
 
 ## Quickstart
 
@@ -25,7 +25,7 @@ Modify to your liking, then, assuming you put the file in "example/test.epupp" a
 gen-epub-book example/test.epupp out/test.epub
 ```
 
-For more detailed usage information and tag list, see the [manpage](https://cdn.rawgit.com/nabijaczleweli/gen-epub-book/man/gen-epub-book.rs.1.html),
+For more detailed usage information and tag list, see the [manpage](https://rawcdn.githack.com/nabijaczleweli/gen-epub-book/man/gen-epub-book.rs.1.html),
 and for a full guide see the [webpage](https://nabijaczleweli.xyz/content/gen-epub-book).
 
 ## Versions in other languages

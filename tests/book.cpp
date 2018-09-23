@@ -117,19 +117,19 @@ TEST_CASE("book::operator==()", "[book]") {
 template <class T>
 static std::vector<T> book_lines() {
 	return {
-	    "   Name: Everything we got, in one thing",                                                                                      //
-	    "",                                                                                                                              //
-	    "Content \t: simple/ctnt.html \t\t  ",                                                                                           //
-	    "String-Content: <strong>SEIZE THE MEANS OF PRODUCTION!</strong>",                                                               //
-	    "Image-Content: simple/chapter_image.png",                                                                                       //
-	    "Image-Content: not_dead_yet.png",                                                                                               //
-	    "Network-Image-Content: https://cdn.rawgit.com/nabijaczleweli/nabijaczleweli.github.io/dev/src/writing_prompts/slim_shady.png",  //
-	    "",                                                                                                                              //
-	    "Network-Cover: http://i.imgur.com/ViQ2WED.jpg",                                                                                 //
-	    "",                                                                                                                              //
-	    "Author: nabijaczleweli",                                                                                                        //
-	    "Date: 2017-02-08T15:30:18+01:00",                                                                                               //
-	    "Language: en-GB",                                                                                                               //
+	    "   Name: Everything we got, in one thing",                                                                                          //
+	    "",                                                                                                                                  //
+	    "Content \t: simple/ctnt.html \t\t  ",                                                                                               //
+	    "String-Content: <strong>SEIZE THE MEANS OF PRODUCTION!</strong>",                                                                   //
+	    "Image-Content: simple/chapter_image.png",                                                                                           //
+	    "Image-Content: not_dead_yet.png",                                                                                                   //
+	    "Network-Image-Content: https://rawcdn.githack.com/nabijaczleweli/nabijaczleweli.github.io/dev/src/writing_prompts/slim_shady.png",  //
+	    "",                                                                                                                                  //
+	    "Network-Cover: http://i.imgur.com/ViQ2WED.jpg",                                                                                     //
+	    "",                                                                                                                                  //
+	    "Author: nabijaczleweli",                                                                                                            //
+	    "Date: 2017-02-08T15:30:18+01:00",                                                                                                   //
+	    "Language: en-GB",                                                                                                                   //
 	};
 }
 
