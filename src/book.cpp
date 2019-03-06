@@ -94,12 +94,12 @@ bool operator==(const book & lhs, const book & rhs) {
 void book::write_to(const char * path) {
 	std::unique_ptr<void, zipFile_deleter> epub(zipOpen(path, APPEND_STATUS_CREATE));
 
-	zipOpenNewFileInZip(epub.get(), "META-INF/container.xml", nullptr, nullptr, 0, nullptr, 0, "container file", Z_DEFLATED, Z_BEST_COMPRESSION);
-	zipWriteInFileInZip(epub.get(), assets_container_xml, std::strlen(assets_container_xml));
-	zipCloseFileInZip(epub.get());
-
 	zipOpenNewFileInZip(epub.get(), "mimetype", nullptr, nullptr, 0, nullptr, 0, "mimetype", Z_DEFLATED, Z_BEST_COMPRESSION);
 	zipWriteInFileInZip(epub.get(), assets_mimetype, std::strlen(assets_mimetype));
+	zipCloseFileInZip(epub.get());
+
+	zipOpenNewFileInZip(epub.get(), "META-INF/container.xml", nullptr, nullptr, 0, nullptr, 0, "container file", Z_DEFLATED, Z_BEST_COMPRESSION);
+	zipWriteInFileInZip(epub.get(), assets_container_xml, std::strlen(assets_container_xml));
 	zipCloseFileInZip(epub.get());
 
 	write_content_table(epub.get());
